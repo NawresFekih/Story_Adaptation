@@ -1,0 +1,20 @@
+# Secrets
+*.env
+.env*
+firebase-*.json
+*-firebase-adminsdk-*.json
+*.pem
+*.key
+secrets/
+
+# Exports bruts et dumps
+workflows_raw/
+*.sql
+*.zip
+*Zone.Identifier
+
+# Python / OS
+venv/
+.venv/
+__pycache__/
+.DS_Store

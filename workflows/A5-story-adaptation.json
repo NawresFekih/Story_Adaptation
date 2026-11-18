@@ -1,0 +1,746 @@
+{
+  "updatedAt": "2026-10-14T10:38:51.470Z",
+  "createdAt": "2026-08-21T20:25:45.874Z",
+  "id": "scwN1ROI1xkgu3wv",
+  "name": "A5-story adaptation",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        -1808
+      ],
+      "id": "800bd9bc-6344-4f89-89ca-8188850f6a36",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "locale_profiles",
+        "limit": 5
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        -1808
+      ],
+      "id": "279b0e5c-ad3d-4c86-8ffa-45259a8f63a3",
+      "name": "Get locale_profiles",
+      "credentials": {
+        "googleApi": {
+          "id": "h7jWFggZJ8Q21H2u",
+          "name": "Google Service Account  3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "faed590f-94e0-4bcc-8595-d2ec44acccb5",
+              "leftValue": "={{ $json.story_id }}",
+              "rightValue": "40ec4d125d8d2dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1888,
+        -1808
+      ],
+      "id": "7d84fcf7-04f2-45b8-a97e-fbcacf0c9704",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1168,
+        -1552
+      ],
+      "id": "940a4c49-9a8a-4029-891f-9722ba87f7c0",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_blueprints",
+        "documentId": "={{ $('Loop Over Items').item.json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        -1520
+      ],
+      "id": "d9a73b3f-9b08-445a-b399-03276e8b9ba7",
+      "name": "Get story blueprint",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_bibles",
+        "documentId": "={{ $('Loop Over Items').item.json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        -1520
+      ],
+      "id": "b8f24bb6-e7de-405f-953f-08235d33de23",
+      "name": "Get story bible",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const localeProfileItem = $('Loop Over Items').item.json;\nconst blueprintDoc = $('Get story blueprint').item.json;\nconst bibleDoc = $('Get story bible').item.json;\n\nconst storyId = localeProfileItem.story_id;\nconst targetCulture = localeProfileItem.target_culture;\n\nif (!blueprintDoc || !blueprintDoc.blueprint) {\n  throw new Error(`Blueprint missing for story_id=\"${storyId}\" — check story_blueprints collection.`);\n}\nif (!bibleDoc || !bibleDoc.bible) {\n  throw new Error(`Bible missing for story_id=\"${storyId}\" — check story_bibles collection.`);\n}\nif (!localeProfileItem.locale_profile) {\n  throw new Error(`locale_profile missing on loop item for story_id=\"${storyId}\", target_culture=\"${targetCulture}\".`);\n}\n\nreturn {\n  story_id: storyId,\n  target_culture: targetCulture,\n  locale_profile: localeProfileItem.locale_profile,\n  blueprint: blueprintDoc.blueprint,\n  bible: bibleDoc.bible\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        -1520
+      ],
+      "id": "7a8898a2-4c91-4379-adb5-c135ea8162a6",
+      "name": "Combine Story Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.item.json; // story_id, target_culture, locale_profile, blueprint, bible\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst cleanArray = (arr) => (arr || []).map(x => clean(typeof x === 'string' ? x : JSON.stringify(x)));\n\nconst bp = data.blueprint || {};\nconst bible = data.bible || {};\nconst lp = data.locale_profile || {};\n\n// --- Identité protégée (jamais adaptée) ---\nconst characterNamesStr = (bible.characters || [])\n  .map(c => c.name + \" (\" + c.role + \")\")\n  .join(\", \");\n\nconst relationshipsStr = (bible.relationships || [])\n  .filter(r => r.is_protected)\n  .map(r => r.source_character_id + \" -> \" + r.target_character_id + \" (\" + r.relationship_type + \"): \" + clean(r.description))\n  .join(\"; \");\n\nconst moralStr = cleanArray(bp.core_moral).join(\"; \");\nconst worldRulesStr = (bible.world_rules || [])\n  .filter(r => r.is_protected)\n  .map(r => clean(r.rule))\n  .join(\"; \");\n\nconst continuityStr = cleanArray(bible.continuity_constraints).join(\"; \");\n\n// --- Structure narrative, répartie en 3 actes selon les phases du Blueprint ---\nconst structure = bp.story_structure || [];\nconst introPhases = [\"setup\", \"inciting_incident\"];\nconst devPhases = [\"rising_action\", \"climax\"];\nconst endPhases = [\"falling_action\", \"resolution\"];\n\nconst phaseSummary = (phases) => structure\n  .filter(s => phases.includes(s.phase))\n  .sort((a, b) => a.sequence - b.sequence)\n  .map(s => clean(s.summary) + \" (\" + s.narrative_function + \")\")\n  .join(\" -> \");\n\nconst introOutline = phaseSummary(introPhases);\nconst devOutline = phaseSummary(devPhases);\nconst endOutline = phaseSummary(endPhases);\n\nconst keyEventsStr = (bp.key_events || [])\n  .filter(e => e.is_protected)\n  .map(e => clean(e.description) + \" [must appear, phase-relevant]\")\n  .join(\"; \");\n\n// --- Éléments culturels cibles (Locale Profile) ---\nconst settingStr = JSON.stringify(lp.setting || {});\nconst socialContextStr = JSON.stringify(lp.social_context || {});\nconst culturalElementsStr = JSON.stringify(lp.cultural_elements || {});\nconst languageStyle = lp.language_style || {};\nconst mappingsStr = (lp.cultural_mappings || [])\n  .map(m => clean(m.story_element) + \" -> \" + clean(m.target_representation) + \" (\" + clean(m.adaptation_reason) + \")\")\n  .join(\"; \");\nconst preservationRulesStr = cleanArray(lp.preservation_rules).join(\"; \");\nconst forbiddenStr = cleanArray(lp.forbidden_adaptations).join(\"; \");\n\nconst outputSchema = \"{\" +\n  \"\\\"story_id\\\": \\\"\\\", \" +\n  \"\\\"target_culture\\\": \\\"\\\", \" +\n  \"\\\"title\\\": \\\"\\\", \" +\n  \"\\\"story_parts\\\": {\" +\n    \"\\\"intro\\\": \\\"\\\", \" +\n    \"\\\"developpement\\\": \\\"\\\", \" +\n    \"\\\"conclusion\\\": \\\"\\\"\" +\n  \"}\" +\n\"}\";\n\nconst prompt =\n  \"You are a children's story writer performing a CULTURAL ADAPTATION, not a translation. \" +\n  \"You write the full prose text of the story, split into exactly three parts: intro, developpement, conclusion. \" +\n  \"Target audience: \" + clean(bp.target_audience) + \". Target culture: \" + clean(data.target_culture) + \". \" +\n\n  \"CHARACTER NAME RULE: These character names must appear EXACTLY as given, never renamed or translated: \" + characterNamesStr + \". \" +\n\n  \"PROTECTED — MUST BE PRESERVED EXACTLY AS NARRATIVE FUNCTION (surface details may be localized, meaning may not change): \" +\n  \"Relationships: \" + relationshipsStr + \". \" +\n  \"Core moral: \" + moralStr + \". \" +\n  \"World rules: \" + worldRulesStr + \". \" +\n  \"Continuity constraints: \" + continuityStr + \". \" +\n  \"Key events that must occur, in order: \" + keyEventsStr + \". \" +\n\n  \"NARRATIVE OUTLINE (do not deviate from this order/function, only localize surface details): \" +\n  \"INTRO covers: \" + introOutline + \". \" +\n  \"DEVELOPPEMENT covers: \" + devOutline + \". \" +\n  \"CONCLUSION covers: \" + endOutline + \". \" +\n\n  \"CULTURAL ADAPTATION TO APPLY (from the Locale Profile — use this to decide settings, food, clothing, forms of address, daily life details): \" +\n  \"Setting: \" + settingStr + \". \" +\n  \"Social context: \" + socialContextStr + \". \" +\n  \"Cultural elements: \" + culturalElementsStr + \". \" +\n  \"Specific element mappings to apply: \" + mappingsStr + \". \" +\n\n  \"LANGUAGE RULE — CRITICAL: The story text (title, intro, developpement, conclusion) must ALWAYS be written in ENGLISH, regardless of the target culture's native language. \" +\n  \"Do not write in \" + clean(languageStyle.language || \"the target culture's language\") + \" and do not mix languages into the prose. \" +\n  \"Cultural adaptation applies to SETTING, CONTENT, and TONE — never to the language the story is written in. \" +\n  \"Language register to emulate (in English): \" + clean(languageStyle.register) + \". \" +\n  \"Local expressions / forms of address from the Locale Profile are a source of INSPIRATION for tone and flavor only — render their spirit or an equivalent in English (e.g. an English term of endearment, an English rendering of a greeting custom), never insert them verbatim in a non-English script or language. \" +\n  \"The only exception: a single well-known culturally iconic term (a specific food or garment name) may be used as an English-text loanword, the way an English-language children's book would use it, if it aids the cultural flavor. \" +\n  \"Reference expressions listed (for tone inspiration only, do not transcribe verbatim): \" + cleanArray(languageStyle.local_expressions).join(\", \") + \". \" +\n\n  \"HARD CONSTRAINTS: \" +\n  \"Preservation rules — never violate: \" + preservationRulesStr + \". \" +\n  \"Forbidden adaptations — never do this: \" + forbiddenStr + \". \" +\n  \"Never rename a protected character. Never change the moral or the outcome of a protected relationship. \" +\n  \"Write natural, flowing prose appropriate for the target age group — not a summary, not bullet points. \" +\n  \"Each of intro/developpement/conclusion must be a self-contained block of English prose (a few paragraphs each). \" +\n  \"do not change the title keep it the original one for all culture\"\n+\n  \"Respond ONLY with valid JSON matching exactly this schema, no extra text, no markdown fences, no reasoning shown in the output: \" + outputSchema;\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/deepseek-v4p1-flash\",\n  max_tokens: 8000,\n  temperature: 0.4,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  story_id: data.story_id,\n  target_culture: data.target_culture,\n  story_gen_prompt: prompt,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -1280
+      ],
+      "id": "c8c760f1-4b18-4498-bd25-78f6bae7ab5e",
+      "name": "Build Story Generation Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1504,
+        -1280
+      ],
+      "id": "8a339cdb-d94c-47b5-97a4-b76b240b027a",
+      "name": "LLM: Story Generation",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst promptData = $('Build Story Generation Prompt').item.json;\n\nconst choice = response.choices?.[0];\nconst finishReason = choice?.finish_reason;\n\nlet rawText = \"\";\ntry {\n  rawText = choice.message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string (finish_reason: \" + finishReason + \")\",\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Increase max_tokens or reduce reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet storyOutput;\nlet usedFix = false;\n\ntry {\n  storyOutput = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    storyOutput = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    // Filet de sécurité supplémentaire : extraction par première/dernière accolade,\n    // au cas où il reste du texte parasite avant/après malgré le nettoyage markdown.\n    const firstBrace = cleanedText.indexOf('{');\n    const lastBrace = cleanedText.lastIndexOf('}');\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      try {\n        storyOutput = JSON.parse(cleanedText.slice(firstBrace, lastBrace + 1));\n        usedFix = true;\n      } catch (thirdError) {\n        return {\n          parse_error: true,\n          error_message: \"JSON parse failed after auto-fix and brace-extraction: \" + thirdError.message,\n          raw_response: cleanedText.slice(0, 500),\n          story_id: promptData.story_id,\n          target_culture: promptData.target_culture\n        };\n      }\n    } else {\n      return {\n        parse_error: true,\n        error_message: \"JSON parse failed, no JSON object found: \" + secondError.message,\n        raw_response: cleanedText.slice(0, 500),\n        story_id: promptData.story_id,\n        target_culture: promptData.target_culture\n      };\n    }\n  }\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  story_id: promptData.story_id,\n  target_culture: promptData.target_culture,\n  story_output: storyOutput\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        -1280
+      ],
+      "id": "fa9350bc-5612-49fb-af25-176b56083083",
+      "name": "Parse Story Generation"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "89290abd-b403-4f3d-8759-228c8f241c03",
+              "leftValue": "={{ $json.parse_error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1904,
+        -1280
+      ],
+      "id": "22c2c57b-a57f-45ae-9306-e66c9817a970",
+      "name": "IF — Parse OK"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst output = item.story_output || {};\nconst parts = output.story_parts || {};\n\nconst requiredParts = [\"intro\", \"developpement\", \"conclusion\"];\n\nconst emptyParts = requiredParts.filter(p =>\n  typeof parts[p] !== 'string' || parts[p].trim() === ''\n);\n\nconst valid = emptyParts.length === 0;\n\nreturn {\n  ...item,\n  story_valid: valid,\n  story_validation_errors: emptyParts.map(p => `story_parts.${p} is empty or missing`)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2192,
+        -1168
+      ],
+      "id": "070e6526-256e-4073-bdd0-65d313f2ecab",
+      "name": "Validate Story Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "89290abd-b403-4f3d-8759-228c8f241c03",
+              "leftValue": "={{ $json.story_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1904,
+        -912
+      ],
+      "id": "f82c8065-8a7e-4d98-bf5a-c7cec01e4f45",
+      "name": "IF — story_valid"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\n\nreturn [{\n  json: {\n    story_id: item.story_id,\n    target_culture: item.target_culture,\n    document_id: item.story_id + '_' + item.target_culture,\n    title: item.story_output?.title || '',\n    story_parts: item.story_output?.story_parts || {},\n    story_valid: item.story_valid,\n    status: 'ready_for_validation',\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        -928
+      ],
+      "id": "a837104b-ecd2-470a-bfec-471e26d534dc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "documentId": "={{ $json.document_id }}",
+        "columns": "story_id,target_culture,title,story_parts,story_valid,status,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        -928
+      ],
+      "id": "1bd1691e-3146-4320-8fd2-ac581ee5691b",
+      "name": "Create generated_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2d677674-2921-4043-92e9-617efac9f45b",
+              "name": "story_id",
+              "value": "={{ $json.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e4f2cf35-9924-470a-8c73-59e7242a6c22",
+              "name": "status",
+              "value": "done",
+              "type": "string"
+            },
+            {
+              "id": "a3e459fe-89c9-4568-a246-1f667202d950",
+              "name": "updateTime",
+              "value": "={{ $json.updateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "92635534-1785-4826-bdd2-684d3debe032",
+              "name": "_id",
+              "value": "={{ $('Loop Over Items').item.json._id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2592,
+        -928
+      ],
+      "id": "650f7b53-2267-4c33-9591-ee2c229a8262",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "locale_profiles",
+        "updateKey": "_id",
+        "columns": "status,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2784,
+        -448
+      ],
+      "id": "1724c172-65e0-41b5-83da-fcaafa86176e",
+      "name": "locale_profile update",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\nconst MAX_RETRIES = 3;\n\nconst retryCount = (item.retry_count || 0) + 1;\n\n// Trace la cause pour le log final, sans dépendre d'un champ qui n'existe\n// que sur une seule des deux branches (parse_error vs story_valid)\nconst failureReason = item.parse_error\n  ? ('parse_error: ' + (item.error_message || 'unknown parse error'))\n  : ('validation_error: ' + (item.story_validation_errors || []).join(' | '));\n\nreturn {\n  ...item,\n  retry_count: retryCount,\n  retry_exceeded: retryCount >= MAX_RETRIES,\n  last_failure_reason: failureReason\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        -672
+      ],
+      "id": "4929b6ca-9b46-4bad-b987-19188b3f3cf4",
+      "name": "Check Retry Limit"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "workflow_logs",
+        "documentId": "={{ $now.toMillis() }}",
+        "columns": "\tlog_id,workflow,story_id,target_culture,step,status,retry_count,message,last_failure_reason,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2352,
+        -592
+      ],
+      "id": "8b2b1f70-8d4a-4933-9b7b-64349eef2e0f",
+      "name": "Log Failure",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\n\nreturn [{\n  json: {\n    log_id: Date.now().toString(),\n    workflow: 'story_generation',\n    story_id: item.story_id,\n    target_culture: item.target_culture,\n    step: item.parse_error ? 'llm_parsing' : 'story_validation',\n    status: 'failed',\n    retry_count: item.retry_count,\n    message: 'Story generation failed after max retries: ' + item.last_failure_reason,\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        -592
+      ],
+      "id": "a2677cef-db1d-4d51-a376-d16849e55d60",
+      "name": "Log Story Generation Failure"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "158e7d3d-870b-47d7-b60a-0b8b0bb7062d",
+              "leftValue": "={{ $json.retry_exceeded }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1856,
+        -672
+      ],
+      "id": "240d9e03-f5c2-496f-b538-0644fe201127",
+      "name": "IF retry_exceeded"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get locale_profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get locale_profiles": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get story blueprint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story blueprint": {
+      "main": [
+        [
+          {
+            "node": "Get story bible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story bible": {
+      "main": [
+        [
+          {
+            "node": "Combine Story Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Story Context": {
+      "main": [
+        [
+          {
+            "node": "Build Story Generation Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Story Generation Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: Story Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Story Generation": {
+      "main": [
+        [
+          {
+            "node": "Parse Story Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Story Generation": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Validate Story Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Retry Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Story Output": {
+      "main": [
+        [
+          {
+            "node": "IF — story_valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — story_valid": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Retry Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create generated_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create generated_stories": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "locale_profile update": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "locale_profile update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Limit": {
+      "main": [
+        [
+          {
+            "node": "IF retry_exceeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Failure": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Story Generation Failure": {
+      "main": [
+        [
+          {
+            "node": "Log Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF retry_exceeded": {
+      "main": [
+        [
+          {
+            "node": "Log Story Generation Failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Combine Story Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 273,
+  "triggerCount": 0,
+  "tags": []
+}

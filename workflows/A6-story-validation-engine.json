@@ -1,0 +1,1048 @@
+{
+  "updatedAt": "2026-11-18T20:03:31.415Z",
+  "createdAt": "2026-06-12T09:40:23.064Z",
+  "id": "alf8qQkUVNr9J5u3loVIU",
+  "name": "A6- Story Validation Engine",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        2016
+      ],
+      "id": "d368eda1-096f-4f01-8eb0-edea47397879",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst CHECK_TYPES = [\"safety\", \"narrative\", \"editorial\", \"cultural\"];\n\nconst results = {};\nfor (const item of items) {\n  const json = item.json;\n  if (json.check_type) {\n    results[json.check_type] = json;\n  }\n}\n\n// Detect checks that never produced a valid result (missing branch or JSON parse failure)\nconst missingChecks = CHECK_TYPES.filter(t => !results[t]);\nconst parseErrorChecks = CHECK_TYPES.filter(t => results[t]?.parse_error === true);\n\nconst technicalFailure = missingChecks.length > 0 || parseErrorChecks.length > 0;\n\n// Content failure = a check ran successfully but flagged the story as non-compliant\nconst contentFailedChecks = CHECK_TYPES.filter(\n  t => results[t] && results[t].parse_error === false && results[t].passed === false\n);\n\nconst allPassed = !technicalFailure && CHECK_TYPES.every(t => results[t]?.passed === true);\n\n// Global score = average of the 4 individual scores that are valid numbers.\n// A missing/invalid score on one check does not block the others from contributing.\nconst validScores = CHECK_TYPES\n  .map(t => results[t]?.score)\n  .filter(s => typeof s === 'number');\n\nconst globalScore = validScores.length > 0\n  ? Math.round((validScores.reduce((a, b) => a + b, 0) / validScores.length) * 10) / 10\n  : null;\n\nlet globalReason = \"ok\";\nif (technicalFailure) {\n  const parts = [];\n  if (missingChecks.length > 0) parts.push(\"missing result(s) from: \" + missingChecks.join(\", \"));\n  if (parseErrorChecks.length > 0) parts.push(\"parse error(s) on: \" + parseErrorChecks.join(\", \"));\n  globalReason = \"technical failure - \" + parts.join(\"; \");\n} else if (contentFailedChecks.length > 0) {\n  globalReason = \"content failed on: \" + contentFailedChecks.join(\", \");\n}\n\nreturn {\n  json: {\n    story_id: items.find(i => i.json.story_id)?.json.story_id || null,\n    approved: !!allPassed,\n    technical_failure: technicalFailure,\n    global_score: globalScore,\n    safety: results.safety || null,\n    narrative: results.narrative || null,\n    editorial: results.editorial || null,\n    cultural: results.cultural || null,\n    global_reason: globalReason\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        1952
+      ],
+      "id": "cfdd0302-be13-4250-bf35-39f4f97ce9b6",
+      "name": "Aggregate Results"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7380e4e8-bc0d-47e7-b01f-7104f550b24c",
+              "leftValue": "={{ $json.story_id }}",
+              "rightValue": "40ec4d125d8d2dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -304,
+        2016
+      ],
+      "id": "c0fc2ce2-e92a-4d7f-bed5-de2577a27a3b",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6378fef7-9a86-434b-acaa-b3e7a3334dfd",
+              "name": "status",
+              "value": "pending_review",
+              "type": "string"
+            },
+            {
+              "id": "d33e3da6-e9aa-4696-9c54-09f4ae117afc",
+              "name": "story_id",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json._id }}",
+              "type": "string"
+            },
+            {
+              "id": "db4e57f0-0ba7-40f4-a6e1-f7b50f2028d3",
+              "name": "title",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "80679e49-058f-4578-bdb5-6985a21819cb",
+              "name": "locale_id",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json._id}}",
+              "type": "string"
+            },
+            {
+              "id": "6ed54512-ce8e-49f2-84f5-5c7e410d63f4",
+              "name": "intro",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json.story_parts.intro}}",
+              "type": "string"
+            },
+            {
+              "id": "05fbfefa-cf11-447b-8b41-c7960bd418ee",
+              "name": "developpment",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json.story_parts.developpement}}",
+              "type": "string"
+            },
+            {
+              "id": "71e8e090-9731-4853-a006-575af097678b",
+              "name": "conclusion",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json.story_parts.conclusion}}",
+              "type": "string"
+            },
+            {
+              "id": "fb52f4a7-1a74-4a05-857d-f2d54f3d9bad",
+              "name": "retry_count",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "c8a1dd25-7d0c-42cd-b9aa-b65124e39fd0",
+              "name": "used",
+              "value": "false",
+              "type": "string"
+            },
+            {
+              "id": "9d5ec754-0e2b-44ea-8d68-13ce6059777f",
+              "name": "created_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "0a262866-88b5-41df-b560-3452d686a2b7",
+              "name": "target_culture",
+              "value": "={{ $item(0).$node[\"Loop Over Items\"].json.target_culture }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2672,
+        2144
+      ],
+      "id": "9e79bea3-4ab8-4cd4-9fa6-03ff442c23b7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "Email",
+        "height": 1504,
+        "width": 336,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        1888
+      ],
+      "typeVersion": 1,
+      "id": "a28e9528-b6ff-46a0-890c-69b91bd2769e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@example.com",
+        "subject": "=Story ready for review — {{ $('Edit Fields').item.json.title }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;\">\n\n  <!-- HEADER -->\n  <div style=\"background: linear-gradient(135deg, #667eea, #764ba2); padding: 24px; text-align: center;\">\n    <h1 style=\"color: white; margin: 0; font-size: 22px;\">📖 Story Review</h1>\n    <p style=\"color: #e0d7ff; margin: 6px 0 0;\">A story is waiting for your review</p>\n  </div>\n\n  <!-- STORY INFO -->\n  <div style=\"padding: 20px; background: #f9f9f9; border-bottom: 1px solid #eee;\">\n    <table style=\"width: 100%; border-collapse: collapse;\">\n      <tr>\n        <td style=\"padding: 6px 0; color: #888; width: 120px;\">📖 Story ID</td>\n        <td style=\"padding: 6px 0; font-weight: bold; color: #333;\">{{ $json.story_id }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 6px 0; color: #888;\">📌 Title</td>\n        <td style=\"padding: 6px 0; font-weight: bold; color: #333;\">{{ $('Edit Fields').item.json.title }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 6px 0; color: #888;\">🌍 Target Culture</td>\n        <td style=\"padding: 6px 0; font-weight: bold; color: #333;\">{{ $('Edit Fields').item.json.target_culture }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 6px 0; color: #888;\">⭐ Global Score</td>\n        <td style=\"padding: 6px 0; font-weight: bold; color: #333;\">{{ $('Aggregate Results').first().json.global_score !== null && $('Aggregate Results').first().json.global_score !== undefined ? $('Aggregate Results').first().json.global_score + '/5' : 'N/A' }}</td>\n      </tr>\n    </table>\n  </div>\n\n  <!-- STORY CONTENT -->\n  <div style=\"padding: 20px; border-bottom: 1px solid #eee;\">\n    <h2 style=\"color: #764ba2; font-size: 15px; margin: 0 0 12px;\">📚 Story</h2>\n    <p style=\"color: #444; line-height: 1.7; margin: 0 0 10px;\">{{ $('Edit Fields').item.json.intro }}</p>\n    <p style=\"color: #444; line-height: 1.7; margin: 0 0 10px;\">{{ $('Edit Fields').item.json.developpment }}</p>\n    <p style=\"color: #444; line-height: 1.7; margin: 0 0 10px;\">{{ $('Edit Fields').item.json.conclusion }}</p>\n  </div>\n\n  <!-- VALIDATION -->\n  <div style=\"padding: 20px; background: #f9f9f9; border-bottom: 1px solid #eee;\">\n    <h2 style=\"color: #764ba2; font-size: 15px; margin: 0 0 12px;\">🔍 Validation</h2>\n    <table style=\"width: 100%; border-collapse: collapse;\">\n      <tr>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #888; width: 100px;\">✅ Safety</td>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #444;\">\n          {{ $('Aggregate Results').first().json.safety?.reason || 'No result (check failed or missing)' }}\n          <span style=\"background: {{ $('Aggregate Results').first().json.safety?.score >= 4 ? '#22c55e' : ($('Aggregate Results').first().json.safety?.score === 3 ? '#f59e0b' : ($('Aggregate Results').first().json.safety?.score ? '#ef4444' : '#9ca3af')) }}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: 6px; white-space: nowrap;\">{{ $('Aggregate Results').first().json.safety?.score ? $('Aggregate Results').first().json.safety.score + '/5' : 'N/A' }}</span>\n        </td>\n      </tr>\n      <tr><td colspan=\"2\" style=\"height: 6px;\"></td></tr>\n      <tr>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #888;\">📖 Narrative</td>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #444;\">\n          {{ $('Aggregate Results').first().json.narrative?.reason || 'No result (check failed or missing)' }}\n          <span style=\"background: {{ $('Aggregate Results').first().json.narrative?.score >= 4 ? '#22c55e' : ($('Aggregate Results').first().json.narrative?.score === 3 ? '#f59e0b' : ($('Aggregate Results').first().json.narrative?.score ? '#ef4444' : '#9ca3af')) }}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: 6px; white-space: nowrap;\">{{ $('Aggregate Results').first().json.narrative?.score ? $('Aggregate Results').first().json.narrative.score + '/5' : 'N/A' }}</span>\n        </td>\n      </tr>\n      <tr><td colspan=\"2\" style=\"height: 6px;\"></td></tr>\n      <tr>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #888;\">✏️ Editorial</td>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #444;\">\n          {{ $('Aggregate Results').first().json.editorial?.reason || 'No result (check failed or missing)' }}\n          <span style=\"background: {{ $('Aggregate Results').first().json.editorial?.score >= 4 ? '#22c55e' : ($('Aggregate Results').first().json.editorial?.score === 3 ? '#f59e0b' : ($('Aggregate Results').first().json.editorial?.score ? '#ef4444' : '#9ca3af')) }}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: 6px; white-space: nowrap;\">{{ $('Aggregate Results').first().json.editorial?.score ? $('Aggregate Results').first().json.editorial.score + '/5' : 'N/A' }}</span>\n        </td>\n      </tr>\n      <tr><td colspan=\"2\" style=\"height: 6px;\"></td></tr>\n      <tr>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #888;\">🌍 Cultural</td>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #444;\">\n          {{ $('Aggregate Results').first().json.cultural?.reason || 'No result (check failed or missing)' }}\n          <span style=\"background: {{ $('Aggregate Results').first().json.cultural?.score >= 4 ? '#22c55e' : ($('Aggregate Results').first().json.cultural?.score === 3 ? '#f59e0b' : ($('Aggregate Results').first().json.cultural?.score ? '#ef4444' : '#9ca3af')) }}; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: 6px; white-space: nowrap;\">{{ $('Aggregate Results').first().json.cultural?.score ? $('Aggregate Results').first().json.cultural.score + '/5' : 'N/A' }}</span>\n        </td>\n      </tr>\n      <tr><td colspan=\"2\" style=\"height: 6px;\"></td></tr>\n      <tr>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #888;\">⚙️ Status</td>\n        <td style=\"padding: 8px; background: #fff; border: 1px solid #eee; color: #444; font-weight: bold;\">{{ $('Aggregate Results').first().json.technical_failure ? '⚠️ Technical failure — one or more checks did not complete' : ($('Aggregate Results').first().json.approved ? '✅ All checks passed' : '❌ Content flagged') }}</td>\n      </tr>\n    </table>\n  </div>\n\n  <!-- ACTION BUTTONS -->\n  <div style=\"padding: 24px; text-align: center; background: #fff;\">\n    <h2 style=\"color: #764ba2; font-size: 15px; margin: 0 0 16px;\">⚡ Action required</h2>\n    <a href=\"http://localhost:5678/webhook/human-review-callback?token={{ $json.token_approve }}&action=approve&story_id={{ $json.story_id }}\"\n       style=\"display: inline-block; background: #22c55e; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin-right: 16px;\">\n      ✅ Approve\n    </a>\n    <a href=\"http://localhost:5678/webhook/human-review-callback?token={{ $json.token_reject }}&action=reject&story_id={{ $json.story_id }}\"\n       style=\"display: inline-block; background: #ef4444; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;\">\n      ❌ Reject\n    </a>\n  </div>\n\n  <!-- FOOTER -->\n  <div style=\"padding: 12px; text-align: center; background: #f3f4f6; border-top: 1px solid #eee;\">\n    <p style=\"color: #aaa; font-size: 12px; margin: 0;\">Content Factory — Automated Review System</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2720,
+        3024
+      ],
+      "id": "205f5e65-64d0-4d0d-a209-49bb23b609cf",
+      "name": "Send a message",
+      "webhookId": "097868a8-4d01-4548-95f1-bd25d8fcfe13",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fYaCGS2mIUUXwdng",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst generateToken = () => {\n  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';\n  let token = '';\n  for (let i = 0; i < 32; i++) {\n    token += chars[Math.floor(Math.random() * chars.length)];\n  }\n  return token;\n};\n\nreturn {\n  ...item,\n  token_approve: generateToken(),\n  token_reject: generateToken(),\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        2352
+      ],
+      "id": "9de10e80-a33c-4521-b800-06c4380290a5",
+      "name": "Génération des tokens"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "review_tokens",
+        "documentId": "={{ $json.story_id }}",
+        "columns": "story_id,token_approve,token_reject,used,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2736,
+        2576
+      ],
+      "id": "d11ecead-4710-4a00-8afc-6603efdf79f4",
+      "name": "Create review_tokens",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,retry_count"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2752,
+        2800
+      ],
+      "id": "05ab3ba0-daef-4988-a081-0b9519e48aa7",
+      "name": "Update adapted_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const agg = $('Aggregate Results').first().json;\nconst story = $('Loop Over Items').first().json;\nconst locale = $('Get locale_profile').first().json.locale_profile || {};\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.reports) staticData.reports = [];\n\nconst tc = locale.target_culture;\nconst targetCulture = typeof tc === 'object' ? (tc?.country || '') : (tc || '');\n\nstaticData.reports.push({\n  story_id: agg.story_id || story.story_id,\n  title: story.title || '',\n  target_culture: targetCulture,\n  approved: agg.approved,\n  technical_failure: agg.technical_failure,\n  global_reason: agg.global_reason,\n  safety_passed: agg.safety?.passed ?? null,\n  safety_reason: agg.safety?.reason || '',\n  narrative_passed: agg.narrative?.passed ?? null,\n  narrative_reason: agg.narrative?.reason || '',\n  editorial_passed: agg.editorial?.passed ?? null,\n  editorial_reason: agg.editorial?.reason || '',\n  cultural_passed: agg.cultural?.passed ?? null,\n  cultural_reason: agg.cultural?.reason || ''\n});\n\n// pass the items through so the loop continues normally\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        3232
+      ],
+      "id": "6a6979b5-329a-41e6-b393-f94477c3b9e4",
+      "name": "Collect Report"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        -512,
+        2016
+      ],
+      "id": "430ddb3e-9672-4d2c-aee9-511113cc6358",
+      "name": "Updated_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const d = $json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst prompt =\n  \"You are a child-safety reviewer for a children's story (ages 3-9). Be direct, no reasoning shown, go straight to the JSON output. \" +\n  \"This is a fairy tale: stylized fairy-tale adversity is ACCEPTABLE and must NOT be penalized \" +\n  \"(a cruel stepmother, mockery, servitude, a villain, a curse, a dragon fight, fear of missing a ball, a short moment of suspense). \" +\n  \"Only flag REAL problems: graphic violence or gore, sexual content beyond a chaste kiss, self-harm, real-world discrimination or hate, \" +\n  \"deliberately traumatizing content, or anything clearly inappropriate for young children. \" +\n  \"Rate a SAFETY SCORE from 1 to 5: \" +\n  \"5 = fully appropriate; \" +\n  \"4 = appropriate, one mildly tense moment typical of fairy tales; \" +\n  \"3 = acceptable, a few intense moments but nothing harmful; \" +\n  \"2 = one clearly inappropriate element for ages 3-9; \" +\n  \"1 = several inappropriate elements or seriously harmful content. \" +\n  \"DECISION RULE: passed must be true when the score is 3 or higher, and false only when the score is 1 or 2. \" +\n  \"Never fail a story for standard fairy-tale adversity. \" +\n  \"Do not deliberate on edge cases: decide quickly. Think for at most a few sentences, then output the JSON. \" +\n  \"Respond ONLY with valid JSON, no explanation, no markdown fences: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one or two short sentences\\\"}. \" +\n  \"Story: \" + clean(d.story_text);\n\nreturn {\n  json: {\n    ...d,\n    check_type: \"safety\",\n    body: {\n      model: \"accounts/fireworks/models/deepseek-v4p1-flash\",\n      messages: [{ role: \"user\", content: prompt }],\n      max_tokens: 4000,\n      reasoning_effort: \"low\",\n      temperature: 0\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        1696
+      ],
+      "id": "aa645bbd-616f-4973-8dce-7dba1c0c731e",
+      "name": "Build Safety Prompt1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .trim();\n\nconst safeParse = (str, fallback) => {\n  try { return JSON.parse(str); } catch (e) { return fallback; }\n};\n\nconst blueprint = safeParse(d.blueprint_summary, {});\nconst characters = safeParse(d.character_registry, []);\n\nconst roles = (characters || []).map(c => c.role).filter(Boolean).join(\", \");\n\nconst conflictsStr = (blueprint.conflicts || [])\n  .map(c => c.type + \": \" + clean(c.description) + \" -> \" + clean(c.resolution))\n  .join(\"; \");\n\nconst keyEventsStr = (blueprint.key_events || []).map(clean).join(\"; \");\nconst moralStr = (blueprint.core_moral || []).map(clean).join(\"; \");\n\nconst prompt =\n  \"You are a narrative consistency checker for a culturally adapted children's story. Be direct, no reasoning shown, go straight to the JSON output. \" +\n  // Note: character name preservation is checked separately in the Cultural Check, not here.\n  \"Focus on STRUCTURE and NARRATIVE FUNCTION, not literal character names and not surface details. \" +\n  \"The story was intentionally adapted to another culture, so settings, objects, food, clothing and wording WILL differ from the original. \" +\n  \"This is expected and must NOT be penalized. An element counts as present if its narrative function is preserved, even when it is expressed differently, shortened or paraphrased. \" +\n  \"Check whether the story keeps: (1) the initial conflict, (2) the core moral, (3) the main conflict resolution, (4) the major protected key events, (5) the main character roles. \" +\n  \"Do not require every minor event or every listed detail to appear. Only the essential arc must be recognizable. \" +\n  \"Rate a narrative SCORE from 1 to 5: \" +\n  \"5 = all expected elements are clearly present; \" +\n  \"4 = all essential elements are present, one is only implicit or slightly weakened; \" +\n  \"3 = essential elements are present, some secondary ones are thin or missing; \" +\n  \"2 = one essential element (core conflict, moral, main resolution, or a major protected event) is clearly missing or distorted; \" +\n  \"1 = several essential elements are missing or the story contradicts the expected arc. \" +\n  \"DECISION RULE: passed must be true when the score is 3 or higher, and false only when the score is 1 or 2. \" +\n  \"Only fail the story for a real structural problem, never for stylistic differences or minor omissions. \" +\n  \"Respond ONLY with valid JSON, no explanation, no markdown fences: {\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one or two short sentences\\\"}. \" +\n\n  \"Story: \" + clean(d.story_text) + \" \" +\n  \"Expected initial conflict: \" + clean(blueprint.initial_conflict) + \" \" +\n  \"Expected narrative goal: \" + clean(blueprint.narrative_goal) + \" \" +\n  \"Expected moral: \" + moralStr + \" \" +\n  \"Expected conflicts and resolutions: \" + conflictsStr + \" \" +\n  \"Expected protected key events: \" + keyEventsStr + \" \" +\n  \"Expected character roles present: \" + roles;\n\nreturn {\n  json: {\n    ...d,\n    check_type: \"narrative\",\n    body: {\n      model: \"accounts/fireworks/models/deepseek-v4p1-flash\",\n      messages: [\n        { role: \"user\", content: prompt }\n      ],\n      max_tokens: 1500,\n      temperature: 0\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        1968
+      ],
+      "id": "69545d37-18a5-41ba-81a6-a930f779af26",
+      "name": "Build Narrative Prompt1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst safeParse = (str, fallback) => {\n  try { return JSON.parse(str); } catch (e) { return fallback; }\n};\n\nconst bible = safeParse(d.bible_summary, {});\n\n// Compact format, empty fields ignored\nconst characters = (bible.characters || [])\n  .map(c => {\n    const parts = [c.name + \" (\" + (c.role || \"?\") + \")\"];\n    if (c.traits?.length) parts.push(\"traits: \" + c.traits.join(\", \"));\n    if (c.protected_attributes?.length) parts.push(\"protected: \" + c.protected_attributes.join(\", \"));\n    return parts.join(\" | \");\n  })\n  .join(\"\\n\");\n\nconst section = (label, arr) =>\n  arr && arr.length ? label + \":\\n\" + arr.map(clean).join(\"\\n\") + \"\\n\\n\" : \"\";\n\nconst prompt =\n  \"You check whether a culturally adapted children's story stays consistent with its Story Bible. \" +\n  \"Be direct, no reasoning shown, go straight to the JSON output. \" +\n  // Note: character name preservation is checked separately in the Cultural Check, not here.\n  \"Ignore literal character names. \" +\n  \"The story was intentionally adapted to another culture, so settings, objects, food, clothing, wording and the way events are expressed WILL differ from the original. \" +\n  \"This is expected and must NOT be penalized. \" +\n  \"Only flag CLEAR contradictions of the canon: a character acting against their core personality, a protected relationship changed in nature, a world rule broken, or a continuity break. \" +\n  \"Do not fail the story for minor nuances, missing secondary details, or stylistic differences. \" +\n  \"Rate a SCORE from 1 to 5: \" +\n  \"5 = fully consistent with the canon; \" +\n  \"4 = consistent, one minor nuance slightly off; \" +\n  \"3 = consistent on all essential points, a few acceptable deviations; \" +\n  \"2 = one notable inconsistency with a core trait, protected relationship, or world rule; \" +\n  \"1 = clear break of the canon, or several notable inconsistencies. \" +\n  \"DECISION RULE: passed must be true when the score is 3 or higher, and false only when the score is 1 or 2. \" +\n  \"Respond ONLY with valid JSON, no markdown fences, no explanation: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"20 words max\\\"}\\n\\n\" +\n  \"CHARACTERS:\\n\" + characters + \"\\n\\n\" +\n  section(\"RELATIONSHIPS\", bible.relationships) +\n  section(\"WORLD RULES\", bible.world_rules) +\n  section(\"CONTINUITY\", bible.continuity_constraints) +\n  \"STORY:\\n\" + clean(d.story_text);\n\nreturn {\n  json: {\n    ...d,\n    check_type: \"editorial\",\n    body: {\n      model: \"accounts/fireworks/models/deepseek-v4p1-flash\",\n      messages: [{ role: \"user\", content: prompt }],\n      max_tokens: 2000,\n      temperature: 0\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        2240
+      ],
+      "id": "9b5f760b-b8a2-4935-8021-b536b7b282d6",
+      "name": "Build Editorial Prompt1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst safeParse = (str, fallback) => {\n  try { return JSON.parse(str); } catch (e) { return fallback; }\n};\n\nconst locale = safeParse(d.locale_summary, {});\nconst characters = safeParse(d.character_registry, []);\n\nconst targetCultureStr = locale.target_culture\n  ? [locale.target_culture.country, locale.target_culture.region, locale.target_culture.language]\n      .filter(Boolean).join(\", \")\n  : \"\";\n\n// Names of the main characters: the culture must NOT translate them\nconst characterNames = (characters || [])\n  .map(c => c.name)\n  .filter(Boolean)\n  .join(\", \");\n\n// Compact cultural_mappings (no narrative_function / adaptation_reason, to save tokens)\nconst mappingsStr = (locale.cultural_mappings || [])\n  .map(m => clean(m.element) + \" -> \" + clean(m.target))\n  .join(\"; \");\n\nconst preservationStr = (locale.preservation_rules || []).map(clean).join(\"; \");\nconst forbiddenStr = (locale.forbidden_adaptations || []).map(clean).join(\"; \");\nconst principlesStr = (locale.adaptation_principles || []).map(clean).join(\"; \");\n\nconst prompt =\n  \"You are a cultural adaptation auditor for a children's story targeted at: \" + targetCultureStr + \". \" +\n  \"Be direct, no reasoning shown, go straight to the JSON output. Apply the rules below decisively. \" +\n  \"Check whether the story follows its Locale Profile on the ESSENTIAL points. \" +\n  \"The profile is guidance for a coherent cultural adaptation, not a strict checklist: \" +\n  \"not every listed element, food, object or mapping has to appear in the story. \" +\n  \"Do not penalize omissions, close regional variants, or elements expressed differently from the profile. \" +\n\n  \"CHARACTER NAME RULE (hard rule): these character names must appear unchanged, NOT translated, localized, or replaced with a culturally equivalent name: \" + characterNames + \". \" +\n  \"Fail only if one of these names is clearly renamed or replaced by a different name. \" +\n  \"A name that is simply not mentioned in the story is NOT a violation. \" +\n  \"Honorifics or titles combined with a protected name (e.g. 'Sidi Prince', 'Lord Prince') are COMPLIANT as long as the protected name itself still appears unchanged. \" +\n\n  \"CLOSE VARIANTS RULE: a regional variant of an expected cultural element (e.g. 'belgha' instead of 'babouche', or locally common instruments instead of the exact ones listed) is an acceptable localization choice, as long as it does not contradict a preservation rule or forbidden adaptation. \" +\n\n  \"Adaptation principles: \" + principlesStr + \". \" +\n  \"Setting expected: \" + clean(JSON.stringify(locale.setting || {})) + \". \" +\n  \"Social context expected: \" + clean(JSON.stringify(locale.social_context || {})) + \". \" +\n  \"Cultural elements expected: \" + clean(JSON.stringify(locale.cultural_elements || {})) + \". \" +\n  \"Language style expected: \" + clean(JSON.stringify(locale.language_style || {})) + \". \" +\n  \"Expected cultural mappings (guidance only): \" + mappingsStr + \". \" +\n  \"Preservation rules (must still hold in the story): \" + preservationStr + \". \" +\n  \"Forbidden adaptations (must NOT appear in the story): \" + forbiddenStr + \". \" +\n\n  \"Rate a cultural SCORE from 1 to 5: \" +\n  \"5 = setting, social context, cultural elements, language style and mappings are well represented and coherent, no forbidden adaptation, no stereotype; \" +\n  \"4 = good, one cultural element feels generic or underdeveloped; \" +\n  \"3 = acceptable, the adaptation is thin or relies on a few surface details, but nothing is violated; \" +\n  \"2 = a forbidden adaptation appears, a preservation rule is clearly broken, or a protected character name was renamed; \" +\n  \"1 = several of these problems, or a serious stereotype or offensive cultural misrepresentation. \" +\n  \"DECISION RULE: passed must be true when the score is 3 or higher, and false only when the score is 1 or 2. \" +\n  \"Only fail for a real violation (renamed protected name, forbidden adaptation, broken preservation rule, offensive stereotype), never for thinness, omissions or stylistic differences. \" +\n\n  \"Story: \" + clean(d.story_text) + \". \" +\n\n  \"Respond ONLY with valid JSON, no explanation, no markdown fences: {\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one or two short sentences\\\"}.\";\n\nreturn {\n  json: {\n    ...d,\n    check_type: \"cultural\",\n    body: {\n      model: \"accounts/fireworks/models/glm-5p3\",\n      messages: [\n        { role: \"user\", content: prompt }\n      ],\n      max_tokens: 4000,\n      reasoning_effort: \"low\",\n      temperature: 0\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        2512
+      ],
+      "id": "990dd311-d81c-4df4-85a0-69d868950577",
+      "name": "Build Cultural Prompt1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2208,
+        1936
+      ],
+      "id": "bb57d92f-1589-46c0-9190-11f09d44c7d3",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        1696
+      ],
+      "id": "7f41f9a8-a160-4986-8803-94cd431d442e",
+      "name": "safety check1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Safety Result / Parse Narrative Result / Parse Editorial Result / Parse Culture Result\n// Same code for all 4 nodes — check_type is inherited from the Build Prompt node upstream\n\nconst response = $input.item.json;\nconst promptData = $('Build Safety Prompt1').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Attempts to fix common JSON formatting errors produced by the LLM\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');             // accidental \"]]\" -> \"]\"\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');  // accidental \"}}\" -> \"}\"\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');            // misplaced escaped quote before \"]\"\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');     // trailing comma\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\n\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    const fixedText = tryFixCommonJsonErrors(cleanedText);\n    result = JSON.parse(fixedText);\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\n// Enforce that the expected 'passed' boolean field is present\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\n// Validate 'score' — invalid or missing score does NOT trigger a parse_error,\n// it just comes through as null so the report can show \"N/A\" instead of blocking a retry.\nlet score = Number(result.score);\nif (!Number.isInteger(score) || score < 1 || score > 5) {\n  score = null;\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        1696
+      ],
+      "id": "949ba1cb-edaa-424a-8de1-7882348a59a4",
+      "name": "Parse Safety Result1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Safety Result / Parse Narrative Result / Parse Editorial Result / Parse Culture Result\n// Same code for all 4 nodes — check_type is inherited from the Build Prompt node upstream\n\nconst response = $input.item.json;\nconst promptData = $('Build Narrative Prompt1').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Attempts to fix common JSON formatting errors produced by the LLM\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');             // accidental \"]]\" -> \"]\"\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');  // accidental \"}}\" -> \"}\"\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');            // misplaced escaped quote before \"]\"\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');     // trailing comma\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\n\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    const fixedText = tryFixCommonJsonErrors(cleanedText);\n    result = JSON.parse(fixedText);\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\n// Enforce that the expected 'passed' boolean field is present\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\n// Validate 'score' — invalid or missing score does NOT trigger a parse_error,\n// it just comes through as null so the report can show \"N/A\" instead of blocking a retry.\nlet score = Number(result.score);\nif (!Number.isInteger(score) || score < 1 || score > 5) {\n  score = null;\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        1968
+      ],
+      "id": "13915210-78e9-478c-a8fc-b244e5925d0e",
+      "name": "Parse Narrative Result1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        2240
+      ],
+      "id": "681e9da3-77e2-4fa3-bdb7-f9746f1249f0",
+      "name": "Editorial Check1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        2512
+      ],
+      "id": "e0c45fa7-ca20-402f-8209-6cf9f4be16f6",
+      "name": "Cultural Check1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Safety Result / Parse Narrative Result / Parse Editorial Result / Parse Culture Result\n// Same code for all 4 nodes — check_type is inherited from the Build Prompt node upstream\n\nconst response = $input.item.json;\nconst promptData = $('Build Editorial Prompt1').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Attempts to fix common JSON formatting errors produced by the LLM\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');             // accidental \"]]\" -> \"]\"\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');  // accidental \"}}\" -> \"}\"\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');            // misplaced escaped quote before \"]\"\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');     // trailing comma\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\n\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    const fixedText = tryFixCommonJsonErrors(cleanedText);\n    result = JSON.parse(fixedText);\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\n// Enforce that the expected 'passed' boolean field is present\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\n// Validate 'score' — invalid or missing score does NOT trigger a parse_error,\n// it just comes through as null so the report can show \"N/A\" instead of blocking a retry.\nlet score = Number(result.score);\nif (!Number.isInteger(score) || score < 1 || score > 5) {\n  score = null;\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        2240
+      ],
+      "id": "f49bb7fd-ee2b-4202-97db-efbb9b464816",
+      "name": "Parse Editorial Result1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n\nconst response = $input.item.json;\nconst promptData = $('Build Cultural Prompt1').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Attempts to fix common JSON formatting errors produced by the LLM\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');             // accidental \"]]\" -> \"]\"\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');  // accidental \"}}\" -> \"}\"\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');            // misplaced escaped quote before \"]\"\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');     // trailing comma\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\n\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    const fixedText = tryFixCommonJsonErrors(cleanedText);\n    result = JSON.parse(fixedText);\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\n// Enforce that the expected 'passed' boolean field is present\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\n// Validate 'score' — invalid or missing score does NOT trigger a parse_error,\n// it just comes through as null so the report can show \"N/A\" instead of blocking a retry.\nlet score = Number(result.score);\nif (!Number.isInteger(score) || score < 1 || score > 5) {\n  score = null;\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1936,
+        2512
+      ],
+      "id": "4ac09a99-b1e1-4274-b45d-30dd317e47e8",
+      "name": "Parse Culture Result1"
+    },
+    {
+      "parameters": {
+        "content": "## Security Layers\n",
+        "height": 1184,
+        "width": 1120,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        1600
+      ],
+      "typeVersion": 1,
+      "id": "3aa1e331-1ff8-40aa-973d-75e8646ad8f3",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        1968
+      ],
+      "id": "36963a0e-2ccd-48a5-b801-e00cc6fc7c3f",
+      "name": "Narrative Check1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        48,
+        2016
+      ],
+      "id": "b9176f9f-8b24-4224-8a41-60d3dd44fb1a",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const story = $('Loop Over Items1').item.json;\nconst blueprintDoc = $('Get story_blueprint1').item.json;\nconst bibleDoc = $('Get story_bible1').item.json;\n\nconst blueprint = blueprintDoc.blueprint || {};\nconst bible = bibleDoc.bible || {};\nconst locale = story.locale_profile || {};\n\nconst NOT_A_CHARACTER = /^(the\\s+)?(ending|end|moral|lesson|resolution|story|relationship|bond)\\b|moral|lesson|must|should|never|always|one should|dangerous|unattainable/i;\n\nconst protectedNames = (blueprint.protected_elements || [])\n  .map(x => String(x || '').trim())\n  .filter(x =>\n    x && x.length <= 40 && x.split(/\\s+/).length <= 6 &&\n    !/[.;:!?]/.test(x) && !NOT_A_CHARACTER.test(x)\n  )\n  .map(x => x.replace(/^the\\s+/i, ''));\n\nif (!story.adapted_text) throw new Error('adapted_text vide pour ' + story.story_id);\nif (protectedNames.length === 0) {\n  throw new Error('Aucun nom protégé détecté pour ' + story.story_id +\n    ' | protected_elements = ' + JSON.stringify(blueprint.protected_elements || []).slice(0, 600));\n}\n\nreturn {\n  story_id: story.story_id,\n  target_culture: story.target_culture,\n  locale_profile_id: story.locale_profile_id,\n  system: 'artifacts',\n\n  // SAFETY / tous les checks : texte brut complet\n  story_text: 'TITLE: ' + story.title + '\\n\\n' + story.adapted_text,\n\n  // NARRATIVE + EDITORIAL\n  blueprint_summary: JSON.stringify({\n    narrative_goal: blueprint.narrative_goal,\n    core_moral: blueprint.core_moral,\n    initial_conflict: blueprint.initial_state?.initial_conflict,\n    conflicts: (blueprint.conflicts || []).map(c => ({ type: c.type, description: c.description, resolution: c.resolution })),\n    key_events: (blueprint.key_events || [])\n      .filter(e => e.is_protected)\n      .map(e => ({ id: e.event_id, description: e.description }))\n  }),\n\n  // CULTURAL uniquement\n  character_registry: JSON.stringify(protectedNames),\n\n  // NARRATIVE uniquement\n  character_roles: JSON.stringify(\n    (bible.characters || []).map(c => ({ id: c.character_id, role: c.role }))\n  ),\n\n  // EDITORIAL\n  bible_summary: JSON.stringify({\n    characters: (bible.characters || []).map(c => ({\n      id: c.character_id, role: c.role, traits: c.traits, protected_attributes: c.protected_attributes\n    })),\n    relationships: (bible.relationships || []).filter(r => r.is_protected).map(r => r.description),\n    world_rules: (bible.world_rules || []).filter(r => r.is_protected).map(r => r.rule),\n    continuity_constraints: bible.continuity_constraints || []\n  }),\n\n  // CULTURAL\n  locale_summary: JSON.stringify({\n    target_culture: story.target_culture,\n    adaptation_principles: locale.adaptation_principles,\n    setting: locale.setting,\n    social_context: locale.social_context,\n    cultural_elements: locale.cultural_elements,\n    language_style: locale.language_style,\n    preservation_rules: locale.preservation_rules,\n    forbidden_adaptations: locale.forbidden_adaptations,\n    cultural_mappings: (locale.cultural_mappings || []).map(m => ({\n      element: m.story_element, function: m.narrative_function, target: m.target_representation\n    }))\n  })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        2032
+      ],
+      "id": "eded495e-9211-4800-84fa-af2195d40d6c",
+      "name": "Merge All Contexts1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_blueprints",
+        "documentId": "={{ $('Loop Over Items1').item.json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        2032
+      ],
+      "id": "1cdd2df9-2dfb-477d-b52b-6197e39fc62d",
+      "name": "Get story_blueprint1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "locale_profiles",
+        "documentId": "={{ $json.story_id +\"_\"+$json.target_culture }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        2032
+      ],
+      "id": "f2d202f7-8afd-42c0-85b0-c3054ea47e48",
+      "name": "Get locale_profile1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_bibles",
+        "documentId": "={{ $('Loop Over Items1').item.json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        2032
+      ],
+      "id": "85ac7433-7bee-4a35-a50d-f7447bb5f8c3",
+      "name": "Get story_bible1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst reports = staticData.reports || [];\n\n// reset so the next execution starts clean\nstaticData.reports = [];\n\nif (reports.length === 0) {\n  throw new Error('No reports collected — check that Collect Report ran inside the loop.');\n}\n\nconst now = new Date().toISOString();\n\nreturn reports.map(r => ({\n  json: {\n    ...r,\n    document_id: r.story_id,\n    status: r.technical_failure ? 'technical_failure'\n          : r.approved ? 'all_checks_passed'\n          : 'content_flagged',\n    created_at: now\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        1808
+      ],
+      "id": "61f672f9-ef21-4646-87e6-5c69f1378d94",
+      "name": "Build Reports1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "validation_reports",
+        "documentId": "={{ $json.document_id }}_{{ $json.target_culture }}",
+        "columns": "story_id,title,target_culture,approved,technical_failure,status,global_reason,safety_passed,safety_reason,narrative_passed,narrative_reason,editorial_passed,editorial_reason,cultural_passed,cultural_reason,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        1808
+      ],
+      "id": "3573fded-02ff-4b07-a768-40ee8537aac2",
+      "name": "Create a document1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Updated_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Génération des tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Collect Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Génération des tokens": {
+      "main": [
+        [
+          {
+            "node": "Create review_tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create review_tokens": {
+      "main": [
+        [
+          {
+            "node": "Update adapted_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update adapted_stories": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Report": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updated_stories": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Safety Prompt1": {
+      "main": [
+        [
+          {
+            "node": "safety check1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Narrative Prompt1": {
+      "main": [
+        [
+          {
+            "node": "Narrative Check1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Editorial Prompt1": {
+      "main": [
+        [
+          {
+            "node": "Editorial Check1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Cultural Prompt1": {
+      "main": [
+        [
+          {
+            "node": "Cultural Check1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "safety check1": {
+      "main": [
+        [
+          {
+            "node": "Parse Safety Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Safety Result1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Narrative Result1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Editorial Check1": {
+      "main": [
+        [
+          {
+            "node": "Parse Editorial Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cultural Check1": {
+      "main": [
+        [
+          {
+            "node": "Parse Culture Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Editorial Result1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Parse Culture Result1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Narrative Check1": {
+      "main": [
+        [
+          {
+            "node": "Parse Narrative Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Build Reports1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get locale_profile1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story_blueprint1": {
+      "main": [
+        [
+          {
+            "node": "Get story_bible1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story_bible1": {
+      "main": [
+        [
+          {
+            "node": "Merge All Contexts1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reports1": {
+      "main": [
+        [
+          {
+            "node": "Create a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get locale_profile1": {
+      "main": [
+        [
+          {
+            "node": "Get story_blueprint1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Contexts1": {
+      "main": [
+        [
+          {
+            "node": "Build Safety Prompt1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Narrative Prompt1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Editorial Prompt1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Cultural Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 1038,
+  "triggerCount": 0,
+  "tags": []
+}

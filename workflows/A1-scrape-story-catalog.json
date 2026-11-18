@@ -1,0 +1,267 @@
+{
+  "updatedAt": "2026-06-09T08:22:53.479Z",
+  "createdAt": "2026-04-09T12:49:31.303Z",
+  "id": "QY0cE3PCzZx4YikeZWbvN",
+  "name": "A1-scrape story catalog",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4c0bc3fa-fb21-43c0-ac6f-c136e166590c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "html"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d1ee10e6-b443-40d2-8df2-0314f48ad1ec",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "09c3d3a5-1d07-497c-a938-dd9a1e85d32c",
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        0
+      ],
+      "id": "0206e86c-0a43-4581-a397-f2db44d014e5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -192
+      ],
+      "id": "4f293abc-a0be-4c9c-b2fb-5dde88c5a10a",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_PAGES = 8;\nconst pages = [];\n\nfor (let i = 1; i <= MAX_PAGES; i++) {\n  pages.push({\n    json: {\n      source_site: \"readthetale\",\n      crawl_type: \"catalog\",\n      page_num: i,\n      url: i === 1\n        ? \"https://www.readthetale.com/popular-bedtime-stories\"\n        : `https://www.readthetale.com/popular-bedtime-stories/?_page=${i}`\n    }\n  });\n}\n\nreturn pages;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "18b58739-6809-494d-8a2b-7d58a8858d2b",
+      "name": "URLs"
+    },
+    {
+      "parameters": {
+        "jsCode": "function simpleHash(str) {\n  let hash = 0n;\n  for (let i = 0; i < str.length; i++) {\n    hash = (hash * 31n + BigInt(str.charCodeAt(i))) & 0xFFFFFFFFFFFFFFFFn;\n  }\n  return hash.toString(16).padStart(16, '0');\n}\n\nconst results = [];\n\nfor (const inputItem of $input.all()) {\n  const item = inputItem.json;\n  const html = item.html || '';\n  const pageNum = parseInt(item.page_num || 1, 10);\n  const statusCode = item.statusCode || item.status || 200;\n\n  if (statusCode !== 200 || !html) {\n    results.push({ json: { _skip: true, page_num: pageNum, error_type: 'http_error' } });\n    continue;\n  }\n\n  const storyRegex = /<h4[^>]*class=\"[^\"]*pt-cv-title[^\"]*\"[^>]*>\\s*<a\\s+href=\"(https:\\/\\/www\\.readthetale\\.com\\/popular-bedtime-stories\\/[^\"]+)\"[^>]*>([^<]+)<\\/a>/g;\n  const likesMatches = [...html.matchAll(/❤️(\\d+)/g)];\n\n  let match;\n  let likeIndex = 0;\n  let pageResults = [];\n\n  while ((match = storyRegex.exec(html)) !== null) {\n    const url = match[1].trim();\n    const title = match[2].trim();\n    const likes = likesMatches[likeIndex] ? parseInt(likesMatches[likeIndex][1], 10) : null;\n    likeIndex++;\n\n    pageResults.push({\n      json: {\n        catalog_id: simpleHash(url),\n        source_title: title,\n        story_url: url,\n        comments: null,\n        likes,\n        popularity_score: likes,\n        page_num: pageNum,\n        rank: (pageNum - 1) * 10 + pageResults.length + 1,\n        source_site: 'readthetale',\n        crawl_type: item.crawl_type || 'catalog',\n        source_language: 'en',\n        source_region: 'global',\n        source_type: 'fairy_tale',\n        ingested: false,\n        discovered_at: new Date().toISOString()\n      }\n    });\n  }\n\n  if (pageResults.length === 0) {\n    results.push({ json: { _skip: true, page_num: pageNum, error_type: 'no_matches' } });\n  } else {\n    results.push(...pageResults);\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "ba767ff5-93cc-493d-90d0-a0b29fb1b4f6",
+      "name": "Scraper"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "source_story_catalog",
+        "documentId": "={{ $json.catalog_id }}",
+        "columns": "catalog_id,source_title,story_url,page_num,source_site,crawl_type,source_language,source_region,source_type,status,discovered_at,rank,catalog_version"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        112
+      ],
+      "id": "769f3adf-45f6-44db-ab5a-ec43900cab9f",
+      "name": "Create source_story_catalog",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const all = $input\n  .all()\n  .map(item => item.json)\n  .filter(s => !s._skip && s.catalog_id && s.story_url);\n\n// Deduplicate by catalog_id\nconst seen = new Set();\nconst unique = all.filter(s => {\n  if (seen.has(s.catalog_id)) return false;\n  seen.add(s.catalog_id);\n  return true;\n});\n\n// Sort by popularity\nunique.sort((a, b) => (b.popularity_score || 0) - (a.popularity_score || 0));\n\n// Keep top 100 and rank\nreturn unique.slice(0, 100).map((story, i) => ({\n  json: {\n    catalog_id: String(story.catalog_id),\n    source_title: String(story.source_title),\n    story_url: String(story.story_url),\n    rank: Number(i + 1),\n    page_num: Number(story.page_num),\n    catalog_version: Number(1),\n    status: \"pending\",\n    likes: story.likes ?? null,\n    comments: story.comments ?? null,\n    popularity_score: story.popularity_score ?? null,\n    source_site: String(story.source_site),\n    source_language: String(story.source_language),\n    source_region: String(story.source_region),\n    source_type: String(story.source_type),\n    crawl_type: String(story.crawl_type),\n    discovered_at: String(story.discovered_at)\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        112
+      ],
+      "id": "da2e8548-0fb8-44c9-b849-e13048f8a211",
+      "name": "Filter & Rank Stories"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Filter & Rank Stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URLs": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create source_story_catalog": {
+      "main": [
+        []
+      ]
+    },
+    "Filter & Rank Stories": {
+      "main": [
+        [
+          {
+            "node": "Create source_story_catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 201,
+  "triggerCount": 0,
+  "tags": []
+}

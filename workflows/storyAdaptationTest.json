@@ -1,0 +1,912 @@
+{
+  "updatedAt": "2026-10-02T20:25:53.065Z",
+  "createdAt": "2026-09-25T23:34:02.376Z",
+  "id": "ZbhedY5K_bQ1XRRL3mfJW",
+  "name": "storyAdaptationTest",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        -592
+      ],
+      "id": "97874e1f-c7eb-43dd-bea3-b07714b5942f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "71b93dab-ddc2-4550-8182-95989dba72ff",
+              "leftValue": "={{ $json._id }}",
+              "rightValue": "40ec4d125d8d2dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -880,
+        -592
+      ],
+      "id": "13e59bd6-c117-4bc8-9c1b-fc37cd1f3a52",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create generated_stories').item.json;\n\nreturn {\n  story_id: data.story_id,\n  title: data.title,\n  target_culture: data.target_culture,\n  original_text: data.original_text,\n  story_parts: data.story_parts,\n  status: data.status,\n  created_at: data.created_at\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -544
+      ],
+      "id": "8b5dda7b-03b7-4f1f-b489-aabff6152ab6",
+      "name": "Merge All Contexts"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Create generated_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .trim();\n\nconst parts = d.story_parts || {};\nconst story_text = clean(parts.intro) + \" \" + clean(parts.developpement) + \" \" + clean(parts.conclusion);\n\nconst prompt =\n  \"You are a STRICT child safety auditor for stories targeted at ages 3-9. Be direct, no reasoning shown, go straight to the JSON output. \" +\n  \"This is a fairy tale / children's story genre: mild, age-appropriate adversity is EXPECTED and should NOT fail the check — \" +\n  \"for example a stepfamily being unkind, mockery, forced chores, a villain, mild peril, or a magical deadline/rule. \" +\n  \"FAIL only for content genuinely unsafe for this age group: graphic or realistic violence, gore, sexual or romantic content beyond a chaste kiss/marriage, \" +\n  \"self-harm, substance use, hateful or discriminatory content targeting real-world groups, or content designed to be genuinely frightening/traumatic rather than storybook-mild.\\n\\n\" +\n\n  \"LANGUAGE CHECK (mandatory): the story must be entirely in English. Scan every sentence for any word, name-suffix, or phrase that is NOT English \" +\n  \"(untranslated fragments, leftover source-language words, mixed-language artifacts). Proper nouns/character names are exempt. \" +\n  \"If you find any non-English word or phrase, list it exactly as it appears.\\n\\n\" +\n\n  \"SCORING RUBRIC — be precise, do not default to 5 out of politeness: \" +\n  \"5 = zero safety concerns, purely storybook-mild, fully English; \" +\n  \"4 = passes, one very minor edge (e.g. a slightly intense villain line) OR a single incidental non-English word with no meaning impact; \" +\n  \"3 = passes, but adversity is on the stronger end of age-appropriate, OR multiple minor non-English fragments present; \" +\n  \"2 = borderline — content arguably crosses into unsafe territory, OR a non-English fragment obscures meaning, needs human review; \" +\n  \"1 = fails — genuinely unsafe content for ages 3-9, or safety-critical text is unintelligible/non-English. \" +\n  \"A score of 1 or 2 MUST have passed:false. Do not give a 4 or 5 if you listed any foreign_words entries with more than one occurrence.\\n\\n\" +\n\n  \"Respond ONLY with valid JSON, no explanation, no markdown fences: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one specific sentence citing what you found\\\", \" +\n  \"\\\"non_english_detected\\\": true/false, \\\"foreign_words\\\": [\\\"...\\\"]}. \" +\n  \"Story: \" + clean(story_text);\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 1200,\n  reasoning_effort: \"low\",\n  temperature: 0,\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  check_type: \"safety\",\n  story_id: d.story_id,\n  target_culture: d.target_culture,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        -896
+      ],
+      "id": "d94e59b9-3a44-4deb-922f-759ab98a888e",
+      "name": "Build Safety Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create generated_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst parts = data.story_parts || {};\nconst adapted_text = clean(parts.intro) + \" \" + clean(parts.developpement) + \" \" + clean(parts.conclusion);\nconst original_text = clean(data.original_text);\n\nconst prompt =\n  \"You are a STRICT narrative structure reviewer for children's stories (ages 3-9). \" +\n  \"You are checking whether an ADAPTED version of a story kept the same narrative skeleton as the ORIGINAL, \" +\n  \"regardless of cultural setting changes. Do NOT judge character personalities/relationships (separate review) or cultural authenticity/names (separate review). \" +\n  \"Focus only on: initial conflict/goal, key plot turning points, how the conflict resolves, and the moral/lesson.\\n\\n\" +\n\n  \"LANGUAGE CHECK (mandatory): scan the ADAPTED story for any word or phrase that is NOT English (untranslated fragments, leftover source-language text, \" +\n  \"mixed-language artifacts). Proper nouns/character names are exempt. List any you find exactly as they appear.\\n\\n\" +\n\n  \"ORIGINAL STORY:\\n\" + original_text + \"\\n\\n\" +\n  \"ADAPTED STORY:\\n\" + adapted_text + \"\\n\\n\" +\n\n  \"SCORING RUBRIC — be precise, do not default to a high score: \" +\n  \"5 = every turning point, the conflict, and the moral map 1:1 to the original, fully English; \" +\n  \"4 = passes, one secondary beat reordered/compressed but function intact, OR one incidental non-English word with no meaning impact; \" +\n  \"3 = passes, but a secondary event was dropped or weakened, OR multiple minor non-English fragments; \" +\n  \"2 = borderline — a KEY turning point or the moral is meaningfully altered, OR non-English text obscures a plot beat; \" +\n  \"1 = fails — conflict, resolution, or moral no longer matches the original, or narrative is unintelligible/non-English. \" +\n  \"A score of 1 or 2 MUST have passed:false. List every dropped or altered beat explicitly in \\\"reason\\\", do not summarize vaguely.\\n\\n\" +\n\n  \"Respond ONLY with valid JSON, no markdown fences: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one specific sentence citing what changed or was dropped\\\", \" +\n  \"\\\"non_english_detected\\\": true/false, \\\"foreign_words\\\": [\\\"...\\\"]}\";\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 1200,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  check_type: \"narrative\",\n  story_id: data.story_id,\n  target_culture: data.target_culture,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -640
+      ],
+      "id": "7f36cc1a-8d1d-448d-94f8-93ad5e2eee51",
+      "name": "Build Narrative Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create generated_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst parts = data.story_parts || {};\nconst adapted_text = clean(parts.intro) + \" \" + clean(parts.developpement) + \" \" + clean(parts.conclusion);\nconst original_text = clean(data.original_text);\n\nconst prompt =\n  \"You are a STRICT canon-consistency reviewer for children's stories (ages 3-9). \" +\n  \"You are checking whether an ADAPTED version of a story kept its characters consistent with the ORIGINAL. \" +\n  \"Do NOT judge plot structure/ending (separate review) or cultural authenticity/names (separate review). \" +\n  \"Focus only on: character personalities/traits, relationships between characters, and behavior consistency.\\n\\n\" +\n\n  \"LANGUAGE CHECK (mandatory): scan the ADAPTED story for any word or phrase that is NOT English (untranslated fragments, leftover source-language text, \" +\n  \"mixed-language artifacts). Proper nouns/character names are exempt. List any you find exactly as they appear.\\n\\n\" +\n\n  \"ORIGINAL STORY:\\n\" + original_text + \"\\n\\n\" +\n  \"ADAPTED STORY:\\n\" + adapted_text + \"\\n\\n\" +\n\n  \"SCORING RUBRIC — be precise, do not default to a high score: \" +\n  \"5 = every main character's traits and relationships match the original exactly, fully English; \" +\n  \"4 = passes, one minor trait nuance shifted but not contradicted, OR one incidental non-English word with no meaning impact; \" +\n  \"3 = passes, but a relationship or trait feels noticeably softened/changed, OR multiple minor non-English fragments; \" +\n  \"2 = borderline — a character's core trait or a KEY relationship is meaningfully contradicted, OR non-English text obscures a character interaction; \" +\n  \"1 = fails — a character acts against their established nature, a core relationship is broken, or text is unintelligible/non-English. \" +\n  \"A score of 1 or 2 MUST have passed:false. Name the specific character and specific contradiction in \\\"reason\\\", do not summarize vaguely.\\n\\n\" +\n\n  \"Respond ONLY with valid JSON, no markdown fences: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one specific sentence naming the character/relationship issue found\\\", \" +\n  \"\\\"non_english_detected\\\": true/false, \\\"foreign_words\\\": [\\\"...\\\"]}\";\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 1200,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  check_type: \"editorial\",\n  story_id: data.story_id,\n  target_culture: data.target_culture,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        -352
+      ],
+      "id": "676004a0-ebac-49b0-8609-f44784d79f53",
+      "name": "Build Editorial Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create generated_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst parts = data.story_parts || {};\nconst adapted_text = clean(parts.intro) + \" \" + clean(parts.developpement) + \" \" + clean(parts.conclusion);\nconst original_text = clean(data.original_text);\n\nconst prompt =\n  \"You are a STRICT cultural authenticity reviewer for children's stories (ages 3-9). \" +\n  \"You are checking whether a story ADAPTED for a target culture reads as natural and authentic for that culture, \" +\n  \"without shallow stereotypes or inaccurate generalizations, and without renaming the main characters from the original. \" +\n  \"Target culture: \" + data.target_culture + \".\\n\\n\" +\n\n  \"LANGUAGE CHECK (mandatory): scan the ADAPTED story for any word or phrase that is NOT English, INCLUDING any target-culture-language \" +\n  \"words inserted without translation/explanation (e.g. a local term dropped in with no context). A well-integrated, explained loanword is acceptable; \" +\n  \"an unexplained foreign fragment is not. List any you find exactly as they appear.\\n\\n\" +\n\n  \"ORIGINAL STORY (for character name reference only — do not judge plot/structure here):\\n\" + original_text + \"\\n\\n\" +\n  \"ADAPTED STORY:\\n\" + adapted_text + \"\\n\\n\" +\n\n  \"Check: \" +\n  \"1) Main character names from the original are preserved unchanged. \" +\n  \"2) Setting, food, clothing, social details feel plausibly authentic for \" + data.target_culture + \" rather than generic or a caricature. \" +\n  \"3) No offensive, reductive, or factually wrong cultural claims.\\n\\n\" +\n\n  \"SCORING RUBRIC — be precise, do not default to a high score: \" +\n  \"5 = names fully preserved, setting feels authentic and specific, no stereotypes, fully English with any loanwords well-integrated; \" +\n  \"4 = passes, one minor detail feels slightly generic but not wrong, OR one incidental unexplained foreign word with no meaning impact; \" +\n  \"3 = passes, but adaptation leans noticeably generic/surface-level for the culture, OR multiple minor unexplained foreign fragments; \" +\n  \"2 = borderline — verges into stereotype, OR a name was altered, OR foreign text obscures meaning; \" +\n  \"1 = fails — a main character name was changed, the portrayal is stereotypical/offensive, or text is unintelligible. \" +\n  \"A score of 1 or 2 MUST have passed:false. Cite the specific name/detail/stereotype found in \\\"reason\\\", do not summarize vaguely.\\n\\n\" +\n\n  \"Respond ONLY with valid JSON, no markdown fences: \" +\n  \"{\\\"passed\\\": true/false, \\\"score\\\": 1-5, \\\"reason\\\": \\\"one specific sentence citing what was found\\\", \" +\n  \"\\\"non_english_detected\\\": true/false, \\\"foreign_words\\\": [\\\"...\\\"]}\";\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 1200,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  check_type: \"cultural\",\n  story_id: data.story_id,\n  target_culture: data.target_culture,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        -80
+      ],
+      "id": "7dab7750-7bb8-4101-98a8-fe2dc80c69ab",
+      "name": "Build Cultural Prompt"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1456,
+        -656
+      ],
+      "id": "d2b5eaa5-f898-45e4-b85a-125c3559ad5a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst CHECK_TYPES = [\"safety\", \"narrative\", \"editorial\", \"cultural\"];\n\nconst results = {};\nfor (const item of items) {\n  const json = item.json;\n  if (json.check_type) {\n    results[json.check_type] = json;\n  }\n}\n\nconst missingChecks = CHECK_TYPES.filter(t => !results[t]);\nconst parseErrorChecks = CHECK_TYPES.filter(t => results[t]?.parse_error === true);\nconst technicalFailure = missingChecks.length > 0 || parseErrorChecks.length > 0;\n\nconst contentFailedChecks = CHECK_TYPES.filter(\n  t => results[t] && results[t].parse_error === false && results[t].passed === false\n);\n\nconst allPassed = !technicalFailure && CHECK_TYPES.every(t => results[t]?.passed === true);\n\nconst validScores = CHECK_TYPES\n  .map(t => results[t]?.score)\n  .filter(s => typeof s === 'number');\n\nconst globalScore = validScores.length > 0\n  ? Math.round((validScores.reduce((a, b) => a + b, 0) / validScores.length) * 10) / 10\n  : null;\n\nlet globalReason = \"ok\";\nif (technicalFailure) {\n  const parts = [];\n  if (missingChecks.length > 0) parts.push(\"missing result(s) from: \" + missingChecks.join(\", \"));\n  if (parseErrorChecks.length > 0) parts.push(\"parse error(s) on: \" + parseErrorChecks.join(\", \"));\n  globalReason = \"technical failure - \" + parts.join(\"; \");\n} else if (contentFailedChecks.length > 0) {\n  globalReason = \"content failed on: \" + contentFailedChecks.join(\", \");\n}\n\nreturn {\n  json: {\n    story_id: items.find(i => i.json.story_id)?.json.story_id || null,\n    target_culture: items.find(i => i.json.target_culture)?.json.target_culture || null,\n    approved: !!allPassed,\n    technical_failure: technicalFailure,\n    global_score: globalScore,\n    safety: results.safety || null,\n    narrative: results.narrative || null,\n    editorial: results.editorial || null,\n    cultural: results.cultural || null,\n    global_reason: globalReason\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        -624
+      ],
+      "id": "9c0c09d0-c948-46ff-acd5-4b8ba6201e58",
+      "name": "Aggregate Results"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        -896
+      ],
+      "id": "afe9c91e-97a3-4a22-b6ba-ae798b80b335",
+      "name": "safety check",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst promptData = $('Build Safety Prompt').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    result = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst validScore = typeof result.score === 'number' && Number.isInteger(result.score) && result.score >= 1 && result.score <= 5;\nif (!validScore) {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a valid integer 'score' field (1-5)\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: result.score,\n  target_culture: promptData.target_culture,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        -896
+      ],
+      "id": "442d4309-c0c4-4cd8-8f81-2e9c5b6ac67e",
+      "name": "Parse Safety Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Safety Result\nconst response = $input.item.json;\nconst promptData = $('Build Narrative Prompt').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    result = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst validScore = typeof result.score === 'number' && Number.isInteger(result.score) && result.score >= 1 && result.score <= 5;\nif (!validScore) {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a valid integer 'score' field (1-5)\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  target_culture: promptData.target_culture,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: result.score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        -640
+      ],
+      "id": "8f32dfe9-e3ed-4be5-93cb-852b9d4a74d2",
+      "name": "Parse Narrative Result"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        -352
+      ],
+      "id": "1335fe4d-e64a-4619-8c48-08e4c5aaf528",
+      "name": "Editorial Check",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1008,
+        -80
+      ],
+      "id": "e3831ae3-1010-4f6d-8d6f-2c9c710d64ae",
+      "name": "Cultural Check",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Editorial Result\nconst response = $input.item.json;\nconst promptData = $('Build Editorial Prompt').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    result = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst validScore = typeof result.score === 'number' && Number.isInteger(result.score) && result.score >= 1 && result.score <= 5;\nif (!validScore) {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a valid integer 'score' field (1-5)\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  target_culture: promptData.target_culture,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: result.score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        -352
+      ],
+      "id": "57f20366-5b8f-4dae-8759-13f7fd86df95",
+      "name": "Parse Editorial Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst response = $input.item.json;\nconst promptData = $('Build Cultural Prompt').item.json;\n\nlet rawText = \"\";\nconst finishReason = response.choices?.[0]?.finish_reason;\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response was truncated (finish_reason=length). Consider raising max_tokens or reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet result;\nlet usedFix = false;\ntry {\n  result = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    result = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      check_type: promptData.check_type,\n      story_id: promptData.story_id\n    };\n  }\n}\n\nif (typeof result.passed !== 'boolean') {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a boolean 'passed' field\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nconst validScore = typeof result.score === 'number' && Number.isInteger(result.score) && result.score >= 1 && result.score <= 5;\nif (!validScore) {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON is missing a valid integer 'score' field (1-5)\",\n    raw_response: cleanedText,\n    check_type: promptData.check_type,\n    story_id: promptData.story_id\n  };\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  check_type: promptData.check_type,\n  target_culture: promptData.target_culture,\n  story_id: promptData.story_id,\n  passed: result.passed,\n  score: result.score,\n  reason: result.reason || \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -80
+      ],
+      "id": "b1a1f54a-cbea-4c69-a7b1-bed2f7f885bc",
+      "name": "Parse Culture Result"
+    },
+    {
+      "parameters": {
+        "content": "## Security Layers\n",
+        "height": 1120,
+        "width": 1120,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -992
+      ],
+      "typeVersion": 1,
+      "id": "bc278304-cab4-4297-9e0b-d701e6a28c21",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 784,
+        "width": 352,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        -656
+      ],
+      "typeVersion": 1,
+      "id": "37a4b101-9097-47df-b344-278d0b5a3fac",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        960,
+        -640
+      ],
+      "id": "39a2a69c-818a-4c48-9dd3-a7f1219fd38d",
+      "name": "Narrative Check",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        -1024,
+        -592
+      ],
+      "id": "f09a3562-eea9-4b8d-8a7c-665d2f3af6a0",
+      "name": "Get raw_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.item.json;\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst original_text = data.original_text;\nconst target_culture = data.target_culture;\n\nconst prompt =\n  \"You are a cultural story adaptation engine for children's stories (ages 3-9). \" +\n  \"Rewrite the story below so it feels natural and authentic for a \" + target_culture + \" audience, \" +\n  \"while preserving the exact same characters, character names, plot structure, conflict, resolution, and moral. \" +\n  \"Only adapt setting, food, clothing, names of minor/background elements, forms of address, and cultural texture. \" +\n  \"Avoid stereotypes and unsupported cultural generalizations. \" +\n  \"IMPORTANT: The adapted story MUST be written entirely in English, regardless of the language of the original story or the target culture. \" +\n  \"You may keep culturally specific words (e.g. names of dishes or garments) in their original language, but the narration and dialogue must be in English. \" +\n  \"Be direct — go straight to the structured output, do not over-explain your reasoning.\\n\\n\" +\n  \"ORIGINAL STORY:\\n\" + clean(original_text) + \"\\n\\n\" +\n  \"Respond ONLY with valid JSON, no markdown fences, no extra text. All values must be written in English: \" +\n  \"{\\\"intro\\\": \\\"\\\", \\\"developpement\\\": \\\"\\\", \\\"conclusion\\\": \\\"\\\"}\";\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 6000,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  story_id: data.story_id,\n  title: data.title,\n  target_culture,\n  original_text,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        -384
+      ],
+      "id": "8d1b1b32-43e0-411d-bfff-6b3d0e01bc02",
+      "name": "Build Adaptation Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -208,
+        -384
+      ],
+      "id": "c9d6b073-285c-47a9-a155-e44af0b372e2",
+      "name": "LLM: Generate Adapted Story",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst promptData = $('Build Adaptation Prompt').item.json;\n\nconst finishReason = response.choices?.[0]?.finish_reason;\nlet rawText = \"\";\n\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nif (finishReason === 'length') {\n  return {\n    parse_error: true,\n    error_message: \"Adapted story response was truncated (finish_reason=length). Raise max_tokens or check reasoning_effort.\",\n    raw_response: rawText.slice(-300),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet storyParts;\nlet usedFix = false;\n\ntry {\n  storyParts = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    storyParts = JSON.parse(tryFixCommonJsonErrors(cleanedText));\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      story_id: promptData.story_id,\n      target_culture: promptData.target_culture\n    };\n  }\n}\n\nconst requiredKeys = [\"intro\", \"developpement\", \"conclusion\"];\nconst missingKeys = requiredKeys.filter(k => typeof storyParts[k] !== 'string' || storyParts[k].trim() === '');\n\nif (missingKeys.length > 0) {\n  return {\n    parse_error: true,\n    error_message: \"Parsed JSON missing or empty required field(s): \" + missingKeys.join(\", \"),\n    raw_response: cleanedText,\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  story_id: promptData.story_id,\n  title: promptData.title,\n  target_culture: promptData.target_culture,\n  original_text: promptData.original_text,\n  story_parts: storyParts,\n  created_at: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -384
+      ],
+      "id": "5f6712a5-5204-4f3e-abb0-b5b5a05d6dfd",
+      "name": "Parse Adapted Story"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_storiestest",
+        "documentId": "={{ $json.story_id +'_'+ $json.target_culture}}",
+        "columns": "story_id, title, target_culture, original_text, story_parts, status, created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -544
+      ],
+      "id": "2cf9839d-0f33-4c66-9f9e-16e44ef928ef",
+      "name": "Create generated_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const story = $input.item.json;\n\nconst story_id = story._id || story.id;\nif (!story_id) {\n  throw new Error('No story_id/id found on raw_stories item: ' + JSON.stringify(story));\n}\n\nconst TARGET_CULTURES = [\n  \"Japanese\",\n  \"Tunisian\",\n  \"Italian\"\n  \n];\n\nconst original_text = story.raw_text || story.full_text || story.story_text || '';\nif (!original_text) {\n  throw new Error('No story text field found on raw_stories item (checked raw_text/full_text/story_text): ' + JSON.stringify(story));\n}\n\nreturn TARGET_CULTURES.map(culture => ({\n  json: {\n    story_id,\n    title: story.source_title || '',\n    original_text,\n    target_culture: culture\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        -592
+      ],
+      "id": "c63cca29-be3b-4765-a12e-dbfbf6ca9345",
+      "name": "Target Cultures"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        -592
+      ],
+      "id": "e9d85451-c107-4f08-87ea-0248a609978c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "19991c62-6a23-419f-80e9-6e8dd8567d40",
+              "leftValue": "={{ $json.parse_error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        -384
+      ],
+      "id": "2c57f580-c010-4dac-bf74-23548d2ede5f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\n\nreturn [{\n  json: {\n    story_id: d.story_id,\n    target_culture: d.target_culture,\n    document_id: d.story_id + '_' + d.target_culture,\n    approved: d.approved,\n    technical_failure: d.technical_failure,\n    global_score: d.global_score,\n    global_reason: d.global_reason,\n    safety_score: d.safety?.score ?? null,\n    safety_reason: d.safety?.reason ?? null,\n    narrative_score: d.narrative?.score ?? null,\n    narrative_reason: d.narrative?.reason ?? null,\n    editorial_score: d.editorial?.score ?? null,\n    editorial_reason: d.editorial?.reason ?? null,\n    cultural_score: d.cultural?.score ?? null,\n    cultural_reason: d.cultural?.reason ?? null,\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1728,
+        -320
+      ],
+      "id": "74643a9a-bb39-4fc8-8b6f-6d01ee202c1d",
+      "name": "Prepare Report Fields"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "validation_reports",
+        "documentId": "={{ $json.document_id +'test' }}",
+        "columns": "story_id, target_culture, approved, technical_failure, global_score, global_reason, safety_score, safety_reason, narrative_score, narrative_reason, editorial_score, editorial_reason, cultural_score, cultural_reason, created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        -32
+      ],
+      "id": "09c1998c-a7e3-4262-9705-6a75c35729b0",
+      "name": "Create validation_reports",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get raw_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Target Cultures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Contexts": {
+      "main": [
+        [
+          {
+            "node": "Build Narrative Prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Editorial Prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Cultural Prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Safety Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Safety Prompt": {
+      "main": [
+        [
+          {
+            "node": "safety check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Narrative Prompt": {
+      "main": [
+        [
+          {
+            "node": "Narrative Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Editorial Prompt": {
+      "main": [
+        [
+          {
+            "node": "Editorial Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Cultural Prompt": {
+      "main": [
+        [
+          {
+            "node": "Cultural Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Prepare Report Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "safety check": {
+      "main": [
+        [
+          {
+            "node": "Parse Safety Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Safety Result": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Narrative Result": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Editorial Check": {
+      "main": [
+        [
+          {
+            "node": "Parse Editorial Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cultural Check": {
+      "main": [
+        [
+          {
+            "node": "Parse Culture Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Editorial Result": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Parse Culture Result": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Narrative Check": {
+      "main": [
+        [
+          {
+            "node": "Parse Narrative Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get raw_stories": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Adaptation Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: Generate Adapted Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Generate Adapted Story": {
+      "main": [
+        [
+          {
+            "node": "Parse Adapted Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Adapted Story": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create generated_stories": {
+      "main": [
+        [
+          {
+            "node": "Merge All Contexts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Target Cultures": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Build Adaptation Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create generated_stories",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Adaptation Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Report Fields": {
+      "main": [
+        [
+          {
+            "node": "Create validation_reports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create validation_reports": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 284,
+  "triggerCount": 0,
+  "tags": []
+}

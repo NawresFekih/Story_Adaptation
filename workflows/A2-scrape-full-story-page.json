@@ -1,0 +1,340 @@
+{
+  "updatedAt": "2026-07-01T10:05:00.131Z",
+  "createdAt": "2026-04-10T14:44:51.659Z",
+  "id": "RO_m4L9Vd8iqj006yLlMn",
+  "name": "A2-scrape_full story page",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        48
+      ],
+      "id": "0cce4af6-b780-41bd-bde6-74e7563e999c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.story_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "html"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        512,
+        48
+      ],
+      "id": "177c7b68-83ae-46f4-b1ff-97c170830e03",
+      "name": "HTTP Request",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "function simpleHash(str) {\n  if (!str || typeof str !== 'string') return 'unknown_' + Date.now();\n  let hash = 0n;\n  for (let i = 0; i < str.length; i++) {\n    hash = (hash * 31n + BigInt(str.charCodeAt(i))) & 0xFFFFFFFFFFFFFFFFn;\n  }\n  return hash.toString(16).padStart(16, '0');\n}\n\nconst httpData = $input.all()[0].json;\nconst html = httpData.html || '';\nconst statusCode = httpData.statusCode || 200;\n\n// ✅ Récupère l'item COURANT du nœud If1 (pas le premier)\nlet prevItem = {};\ntry {\n  prevItem = $('If1').item.json;\n} catch(e) {\n  try {\n    prevItem = $('Loop Over Items').item.json;\n  } catch(e2) {}\n}\n\nconst storyUrl = prevItem.story_url || null;\nconst catalogId = prevItem.catalog_id || null;\nconst sourceTitle = prevItem.source_title || null;\n\n// Guard critique\nif (!storyUrl) {\n  return [{ json: { _skip: true, error_type: 'missing_story_url' }}];\n}\n\nif (statusCode !== 200 || !html) {\n  return [{ json: { _skip: true, error_type: 'http_error', status_code: statusCode, story_url: storyUrl }}];\n}\n\nconst decodeHtml = (str) => str\n  .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')\n  .replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\")\n  .replace(/&#8217;/g, \"'\").replace(/&#8220;/g, '\"')\n  .replace(/&#8221;/g, '\"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');\n\nconst stripTags = (str) => decodeHtml(str.replace(/<[^>]+>/g, ' ')).replace(/\\s+/g, ' ').trim();\n\nconst titleMatch = html.match(/<h1[^>]*class=\"[^\"]*page-header-title[^\"]*\"[^>]*>(.*?)<\\/h1>/is);\nconst readingTimeMatch = html.match(/(\\d+)\\s*mins?\\s*read/i);\n\nconst entryMatch = html.match(/<div[^>]*class=\"[^\"]*entry-content[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div><!-- \\.entry -->/i);\nconst entryHtml = entryMatch ? entryMatch[1] : html;\nconst paragraphMatches = [...entryHtml.matchAll(/<p[^>]*>(.*?)<\\/p>/gis)]\n  .map(m => stripTags(m[1]))\n  .filter(p => p.length > 40 && !p.toLowerCase().includes('listen to'));\n\nconst storyText = paragraphMatches.join('\\n\\n');\n\nif (!storyText || storyText.length < 300) {\n  return [{ json: { _skip: true, error_type: 'story_text_too_short', story_url: storyUrl }}];\n}\n\nconst moralMatch = html.match(/Moral(?:\\s+of\\s+the\\s+Story)?[^<]*<\\/h[1-6]>\\s*<p[^>]*>(.*?)<\\/p>/is);\n\nconst questionsMatch = html.match(/<blockquote[^>]*>([\\s\\S]*?)<\\/blockquote>/i);\nlet followUpQuestions = [];\nif (questionsMatch) {\n  const liMatches = [...questionsMatch[1].matchAll(/<li[^>]*>(.*?)<\\/li>/gis)];\n  followUpQuestions = liMatches.map(m => stripTags(m[1]));\n}\n\nconst likesMatch = html.match(/data-ulike-counter-value=\"\\+?(\\d+)\"/);\nconst likes = likesMatch ? parseInt(likesMatch[1], 10) : null;\n\nconst commentsMatch = html.match(/This Post Has (\\d+) Comments/i);\nconst comments = commentsMatch ? parseInt(commentsMatch[1], 10) : null;\n\nreturn [{\n  json: {\n    raw_story_id: simpleHash(storyUrl),\n    catalog_id: catalogId,\n    source_title: titleMatch ? stripTags(titleMatch[1]) : sourceTitle,\n    story_url: storyUrl,\n    story_text: storyText,\n    reading_time: readingTimeMatch ? parseInt(readingTimeMatch[1], 10) : null,\n    moral_text: moralMatch ? stripTags(moralMatch[1]) : null,\n    follow_up_questions: followUpQuestions,\n    likes,\n    comments,\n    source_site: 'readthetale',\n    source_language: 'en',\n    source_region: 'global',\n    source_type: 'fairy_tale',\n    editorial_status: 'pending',\n    \n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        48
+      ],
+      "id": "70494c1e-a08f-4b8e-8b99-c9f95bdae4d5",
+      "name": "parse full story page"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories",
+        "documentId": "={{ $json.raw_story_id }}",
+        "columns": "raw_story_id,catalog_id,source_title,story_url,story_text,reading_time,moral_text,likes,comments,source_site,source_language,source_region,source_type,editorial_status,copyright_status,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        48
+      ],
+      "id": "107e6980-9e5b-4b5f-8849-b4181da60e95",
+      "name": "Create raw_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "source_story_catalog",
+        "updateKey": "catalog_id",
+        "columns": "status, catalog_id"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        48
+      ],
+      "id": "c91dab57-38b1-4078-90d5-9a05eda19aa2",
+      "name": "update source_story_catalog",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  console.log('catalog_id:', item.json.catalog_id);\n  return {\n    json: {\n      catalog_id: item.json.catalog_id,\n      status: \"ingested\",\n      ingested_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        48
+      ],
+      "id": "8e008857-45a3-4ec5-99b1-e6dd29eac541",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "source_story_catalog",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        48
+      ],
+      "id": "16d8527d-9246-4e5b-9750-bfe5f2067d9f",
+      "name": "Get- source_story_catalog",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        256,
+        32
+      ],
+      "id": "cb3d3c22-1f31-465c-9146-4630bdd097b0",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "642dea0c-0d52-41ae-b150-5d7fe1a659e6",
+              "leftValue": "={{ $json.status}}",
+              "rightValue": "pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "36c18aa3-b6a8-45d6-bfe3-73c33caa856c",
+              "leftValue": "={{ $json.story_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -16,
+        48
+      ],
+      "id": "760fc1cd-6063-4f13-af97-f8586e5777c2",
+      "name": "If1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get- source_story_catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "parse full story page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse full story page": {
+      "main": [
+        [
+          {
+            "node": "Create raw_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create raw_stories": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update source_story_catalog": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "update source_story_catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get- source_story_catalog": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 524,
+  "triggerCount": 0,
+  "tags": []
+}

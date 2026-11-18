@@ -1,0 +1,749 @@
+{
+  "updatedAt": "2026-09-24T12:12:11.536Z",
+  "createdAt": "2026-06-26T11:07:32.716Z",
+  "id": "iiFy2cY0BrWtZy8K6DS0Q",
+  "name": "A9-Illustration Validation",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a331442f-84a4-4f0f-b2dd-29b1214491d8",
+              "leftValue": "={{ $json.query.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        96,
+        0
+      ],
+      "id": "51de4edf-0fb5-4997-8120-0fc4ce07db17",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b5904728-72d7-4269-b7ca-27c9c42fe69e",
+              "leftValue": "={{ $json.escalated }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1056,
+        256
+      ],
+      "id": "6750651f-1b5f-4d8f-83f9-daa0b9ce75ea",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14227600-bc49-4100-85b7-8c2328bbdcc9",
+              "name": "story_id",
+              "value": "={{ $json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "75346be6-7b2d-481e-ab16-edeef32387d9",
+              "name": "section",
+              "value": "={{ $json.query.section }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        256
+      ],
+      "id": "6c57d5fd-ef69-44f5-9bb8-d722b5da5ecb",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "path": "illustration-review",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "38a31a9f-a282-4753-8476-092071a585d5",
+      "name": "Webhook (illustration-review)",
+      "webhookId": "ba571a7c-e4c1-4b2b-9be8-f17b62cb1a3d"
+    },
+    {
+      "parameters": {
+        "content": "## section_failed",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "bf04a996-2149-4972-9dc0-bce9603e9acc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Retry same section",
+        "height": 80,
+        "width": 176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        624
+      ],
+      "typeVersion": 1,
+      "id": "813ead4c-f4e1-42fe-b501-dd99dd905cee",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Reject",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        304
+      ],
+      "typeVersion": 1,
+      "id": "8228ad06-f32c-4ee4-af6e-7d6d24cdcd74",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,sections_status"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        48
+      ],
+      "id": "6142f15b-a56b-439f-9986-9a0535b34134",
+      "name": "Firestore Update — section_failed",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,sections_status"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        400
+      ],
+      "id": "15aa2258-3285-4603-ad52-5edcce02f54d",
+      "name": "Firestore Update — retry same section",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Approve",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "e4c0aaa3-c1ae-4cb2-a434-b1e21c830dbe",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e897009-2708-46c8-b85a-d2ee428d4559",
+              "name": "story_id",
+              "value": "={{ $json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "0a21ab5e-b663-4b0f-83d6-544024c4c885",
+              "name": "section",
+              "value": "={{ $json.query.section }}",
+              "type": "string"
+            },
+            {
+              "id": "680768e3-2500-4cdb-b598-967827a95dbe",
+              "name": "file_id",
+              "value": "={{ $json.query.file_id }}",
+              "type": "string"
+            },
+            {
+              "id": "823ddc94-50ce-4ae2-9de8-b832a41816ea",
+              "name": "drive_link",
+              "value": "={{ $json.query.drive_link }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -144
+      ],
+      "id": "1061c655-69e2-4e3c-bb71-e5486564fc37",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,sections_status"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        -144
+      ],
+      "id": "4a1d0bbf-2a62-4a26-b90c-0ac225a1b6fc",
+      "name": "Firestore Update — save validated image",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dd2eeb2a-4455-4847-9507-b2f8d452b0bb",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "\"illustrations_complete\"",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        -352
+      ],
+      "id": "f9d83cca-5f6a-4f55-bd2b-77af780098c2",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea47a9e8-917a-4c69-8d6b-bb479256270e",
+              "name": "story_id",
+              "value": "={{ $json.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "b2d55af2-f2bb-420f-9e1f-04690c15c640",
+              "name": "status",
+              "value": "illustrations_complete",
+              "type": "string"
+            },
+            {
+              "id": "f122834a-1b0d-4028-9dd9-f656c4f25c93",
+              "name": "complited_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1264,
+        -544
+      ],
+      "id": "4a7d4544-13cb-4b7b-9dd4-609c530612b8",
+      "name": "illustrations_complete"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b13557af-3e8e-40ad-8e13-a19bbb0450d7",
+              "name": "story_id",
+              "value": "={{ $json.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "532132b6-b563-4e0d-a2af-354593d3b350",
+              "name": "section",
+              "value": "={{$json.section}}",
+              "type": "string"
+            },
+            {
+              "id": "f3356d39-b25a-4634-9d6e-7a152f2e037c",
+              "name": "status",
+              "value": "illustration_blocked",
+              "type": "string"
+            },
+            {
+              "id": "fcaa4f1c-0a41-40fd-8bdd-6f94a071554f",
+              "name": "updated_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        48
+      ],
+      "id": "71c5a6bd-b049-41d5-b671-6f34562f72d5",
+      "name": "section_failed"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b13557af-3e8e-40ad-8e13-a19bbb0450d7",
+              "name": "story_id",
+              "value": "={{ $json.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "1905f698-feb6-4f7f-b0fc-2d0dd1b667fe",
+              "name": "section",
+              "value": "={{ $json.section }}",
+              "type": "string"
+            },
+            {
+              "id": "f3356d39-b25a-4634-9d6e-7a152f2e037c",
+              "name": "status",
+              "value": "illustrations_in_progress",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        400
+      ],
+      "id": "9268a853-f09b-433a-8078-8733dcf02f4a",
+      "name": "illustrations_in_progress"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        -544
+      ],
+      "id": "66400d48-08c8-440c-9285-dccf7fda9860",
+      "name": "Firestore Update",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "documentId": "={{ $json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        -144
+      ],
+      "id": "4b0464f7-4162-4f2a-80d3-c8c28309f6d7",
+      "name": "Get a document",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,sections_status"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        256
+      ],
+      "id": "493e4fa5-53dc-46f8-953a-67d3c3da3a71",
+      "name": "Update generated_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const firestoreData = $input.item.json;\nconst webhookData = $('Edit Fields3').item.json;\n\nconst sectionsStatus = firestoreData.sections_status || {};\nconst sectionKeys = firestoreData.section_keys || Object.keys(sectionsStatus);\nconst section = webhookData.section;\n\nsectionsStatus[section] = {\n  status: 'approved',\n  file_id: webhookData.file_id,\n  drive_link: webhookData.drive_link\n};\n\nconst allApproved = sectionKeys.length > 0 &&\n  sectionKeys.every(k => sectionsStatus[k]?.status === 'approved');\n\nreturn {\n  story_id: webhookData.story_id,\n  sections_status: sectionsStatus,\n  status: allApproved ? 'illustrations_complete' : 'illustration_in_progress'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -144
+      ],
+      "id": "f92f2a2c-3ed5-4519-a2e4-0c9418b56b88",
+      "name": "Update Section Status — Approve"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "documentId": "={{ $json.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        256
+      ],
+      "id": "2ef25151-f28d-46ba-bab4-76ea97c8ecc2",
+      "name": "Get a document1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const firestoreData = $input.item.json;\nconst webhookData = $('Edit Fields').item.json;\n\nconst MAX_REJECTIONS = 3;\n\nconst sectionsStatus = firestoreData.sections_status || {};\nconst section = webhookData.section;\n\nconst prevCount = sectionsStatus[section]?.rejection_count || 0;\nconst newCount = prevCount + 1;\n\nconst escalated = newCount >= MAX_REJECTIONS;\n\nsectionsStatus[section] = {\n  status: escalated ? 'needs_manual_review' : 'rejected',\n  rejection_count: newCount\n};\n\nreturn {\n  story_id: webhookData.story_id,\n  section,\n  rejection_count: newCount,\n  escalated,\n  sections_status: sectionsStatus,\n  status: escalated ? 'illustration_blocked' : 'illustrations_in_progress'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        256
+      ],
+      "id": "e249adb4-cbd5-4a8f-879c-d1f91118f30f",
+      "name": "Update Section Status — Reject"
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "section_failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Webhook (illustration-review)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firestore Update — save validated image": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "illustrations_complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "section_failed": {
+      "main": [
+        [
+          {
+            "node": "Firestore Update — section_failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "illustrations_in_progress": {
+      "main": [
+        [
+          {
+            "node": "Firestore Update — retry same section",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "illustrations_complete": {
+      "main": [
+        [
+          {
+            "node": "Firestore Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Update Section Status — Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update generated_stories": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Section Status — Approve": {
+      "main": [
+        [
+          {
+            "node": "Firestore Update — save validated image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document1": {
+      "main": [
+        [
+          {
+            "node": "Update Section Status — Reject",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Section Status — Reject": {
+      "main": [
+        [
+          {
+            "node": "Update generated_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": "6834c476-fd0e-462c-854e-f8c6000494c1",
+  "versionCounter": 576,
+  "triggerCount": 1,
+  "tags": []
+}

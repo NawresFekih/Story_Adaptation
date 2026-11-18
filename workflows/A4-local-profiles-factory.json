@@ -1,0 +1,776 @@
+{
+  "updatedAt": "2026-10-05T10:34:40.692Z",
+  "createdAt": "2026-08-18T17:55:52.211Z",
+  "id": "QUpQsGRfpNOMu14G",
+  "name": "A4- Local profiles Factory",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -304
+      ],
+      "id": "05720218-ac38-41ad-beb7-84433b2b02fd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c23a2cf7-1e9a-48c8-a444-7619b1b0f2b1",
+              "leftValue": "={{ $json._id }}",
+              "rightValue": "40ec4d125d8d2dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -304
+      ],
+      "id": "666a2949-d226-44ed-8b48-70f4860831e8",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        896,
+        -304
+      ],
+      "id": "dcb745c5-9465-4c5d-bcc1-a8d624bb2e7c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const blueprint = $('Get story blueprint').item.json;\nconst storyBible = $input.item.json;\nconst storyItem = $('Loop Over Items').item.json;\n\nconst storyId = storyItem.story_id || storyItem.id;\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.counts) staticData.counts = {};\nstaticData.counts[storyId] = { success: 0, failed: 0 };\n\nconst TARGET_CULTURES = [\n  \"Tunisian\"\n];\n\nreturn TARGET_CULTURES.map(culture => ({\n  json: {\n    story_id: storyId,\n    target_culture: culture,\n    blueprint,\n    story_bible: storyBible\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        -240
+      ],
+      "id": "2a5cd905-9f29-4940-a349-9b362370ba42",
+      "name": "Target Cultures"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_bibles",
+        "documentId": "={{ $json._id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        -240
+      ],
+      "id": "2fc32425-729e-4775-af0c-31afc5c34b08",
+      "name": "Get story bible",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_blueprints",
+        "documentId": "={{ $json._id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        -240
+      ],
+      "id": "9e32e207-2dc6-4d97-a4f5-33bae1461076",
+      "name": "Get story blueprint",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        -304
+      ],
+      "id": "e458187e-5e43-4687-83e5-0ba1d2e969c8",
+      "name": "Get raw story",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1792,
+        -240
+      ],
+      "id": "3c92e95f-02ab-4f9c-a816-42de8c861ed0",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\n\nconst bp = item.blueprint?.blueprint || {};\nconst bible = item.story_bible?.bible || {};\nconst targetCulture = item.target_culture;\nconst storyId = item.story_id || bp.story_id || bible.story_id;\n\n// --- PROTECTED ---\nconst protectedCharacters = (bible.characters || []).map(c => ({\n  name: c.name,\n  role: c.role,\n  protected_attributes: c.protected_attributes || []\n}));\nconst allCharacterNames = (bible.characters || []).map(c => c.name);\n\nconst protectedRelationships = (bible.relationships || [])\n  .filter(r => r.is_protected)\n  .map(r => ({\n    source: r.source_character_id,\n    target: r.target_character_id,\n    type: r.relationship_type,\n    description: r.description\n  }));\n\nconst protectedWorldRules = (bible.world_rules || [])\n  .filter(r => r.is_protected)\n  .map(r => r.rule);\n\nconst protectedKeyEvents = (bp.key_events || [])\n  .filter(e => e.is_protected)\n  .map(e => ({\n    description: e.description,\n    narrative_function: e.narrative_function,\n    importance: e.importance\n  }));\n\nconst protectedElements = {\n  characters: protectedCharacters,\n  relationships: protectedRelationships,\n  world_rules: protectedWorldRules,\n  moral: bp.core_moral || [],\n  key_events: protectedKeyEvents,\n  continuity_constraints: bible.continuity_constraints || [],\n  required_elements: bp.required_elements || []\n};\n\n// --- ADAPTABLE ---\nconst adaptableLocations = (bp.location_functions || [])\n  .filter(l => l.adaptability === \"flexible\")\n  .map(l => ({\n    original: l.original_location,\n    narrative_function: l.narrative_function\n  }));\n\nconst adaptableSecondaryEvents = (bp.key_events || [])\n  .filter(e => !e.is_protected)\n  .map(e => e.description);\n\nconst adaptableEntities = (bible.important_entities || []).map(e => ({\n  name: e.name,\n  type: e.type,\n  narrative_role: e.narrative_role\n}));\n\nconst adaptableElements = {\n  locations: adaptableLocations,\n  adaptable_elements: bp.adaptable_elements || [],\n  optional_elements: bp.optional_elements || [],\n  secondary_events: adaptableSecondaryEvents,\n  entities: adaptableEntities,\n  daily_life: [],\n  food: [],\n  clothing: [],\n  social_context: []\n};\n\nreturn {\n  story_id: storyId,\n  target_culture: targetCulture,\n  source_title: bp.source_title || bible.source_title || \"\",\n  story_type: bp.story_type || \"\",\n  target_audience: bp.target_audience || \"\",\n  protected_story_elements: protectedElements,\n  adaptable_story_elements: adaptableElements,\nprotected_character_names: allCharacterNames,\n  retry_count: 0 \n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        -224
+      ],
+      "id": "c73696d0-cc27-435c-8146-cab17f92a57b",
+      "name": "Cultural Adaptation Context"
+    },
+    {
+      "parameters": {
+        "jsCode": "const context = $('Cultural Adaptation Context').item.json;\nconst currentItem = $input.item.json;\nconst data = { ...context, retry_count: $input.item.json.retry_count || 0,\n             last_failure_reason: currentItem.last_failure_reason || null};\n\nconst clean = (str) => (str || '')\n  .toString()\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst cleanArray = (arr) => (arr || []).map(x => clean(typeof x === 'string' ? x : JSON.stringify(x)));\n\nconst protectedEl = data.protected_story_elements || {};\nconst adaptableEl = data.adaptable_story_elements || {};\n\nconst protectedCharactersStr = (protectedEl.characters || [])\n  .map(c => c.name + \" (\" + c.role + \", protected: \" + (c.protected_attributes || []).join(\", \") + \")\")\n  .join(\"; \");\n\nconst protectedRelationshipsStr = (protectedEl.relationships || [])\n  .map(r => r.source + \" -> \" + r.target + \" (\" + r.type + \"): \" + clean(r.description))\n  .join(\"; \");\n\nconst protectedRulesStr = cleanArray(protectedEl.world_rules).join(\"; \");\nconst protectedMoralStr = cleanArray(protectedEl.moral).join(\"; \");\nconst protectedEventsStr = (protectedEl.key_events || [])\n  .map(e => clean(e.description) + \" (\" + e.narrative_function + \")\")\n  .join(\"; \");\nconst continuityStr = cleanArray(protectedEl.continuity_constraints).join(\"; \");\n\nconst characterNamesStr = (data.protected_character_names || []).join(\", \");\n\nconst adaptableLocationsStr = (adaptableEl.locations || [])\n  .map(l => clean(l.original) + \" (\" + l.narrative_function + \")\")\n  .join(\"; \");\nconst adaptableElementsStr = cleanArray(adaptableEl.adaptable_elements).join(\", \");\nconst optionalElementsStr = cleanArray(adaptableEl.optional_elements).join(\", \");\nconst secondaryEventsStr = cleanArray(adaptableEl.secondary_events).join(\"; \");\nconst entitiesStr = (adaptableEl.entities || [])\n  .map(e => clean(e.name) + \" (\" + e.type + \", \" + e.narrative_role + \")\")\n  .join(\"; \");\n\nconst outputSchema = \"{\" +\n  \"\\\"story_id\\\": \\\"\\\", \" +\n  \"\\\"target_culture\\\": {\\\"country\\\": \\\"\\\", \\\"region\\\": \\\"\\\", \\\"language\\\": \\\"\\\"}, \" +\n  \"\\\"adaptation_principles\\\": [\\\"\\\"], \" +\n  \"\\\"setting\\\": {\\\"environment\\\": [], \\\"architecture\\\": [], \\\"geography\\\": [], \\\"climate\\\": [], \\\"public_spaces\\\": [], \\\"domestic_spaces\\\": []}, \" +\n  \"\\\"social_context\\\": {\\\"family_dynamics\\\": [], \\\"social_interactions\\\": [], \\\"community_life\\\": [], \\\"forms_of_address\\\": []}, \" +\n  \"\\\"cultural_elements\\\": {\\\"food\\\": [], \\\"clothing\\\": [], \\\"traditions\\\": [], \\\"music\\\": [], \\\"objects\\\": [], \\\"daily_life\\\": []}, \" +\n  \"\\\"language_style\\\": {\\\"language\\\": \\\"\\\", \\\"register\\\": \\\"\\\", \\\"local_expressions\\\": [], \\\"restrictions\\\": []}, \" +\n  \"\\\"cultural_mappings\\\": [{\\\"story_element\\\": \\\"\\\", \\\"element_type\\\": \\\"\\\", \\\"narrative_function\\\": \\\"\\\", \\\"target_representation\\\": \\\"\\\", \\\"adaptation_reason\\\": \\\"\\\"}], \" +\n  \"\\\"preservation_rules\\\": [\\\"\\\"], \" +\n  \"\\\"forbidden_adaptations\\\": [\\\"\\\"]\" +\n  \"}\";\nfunction buildRetryFeedback(failure, retryCount) {\n  if (!failure || retryCount === 0) return \"\";\n\n  const parts = [];\n\n  const schemaErr = failure.schema_errors || {};\n  if ((schemaErr.missing_fields || []).length > 0) {\n    parts.push(\"You omitted these required fields: \" + schemaErr.missing_fields.join(\", \") + \". Include all of them.\");\n  }\n  if ((schemaErr.wrong_type_fields || []).length > 0) {\n    parts.push(\"These fields must be JSON arrays, not another type: \" + schemaErr.wrong_type_fields.join(\", \") + \".\");\n  }\n  if (schemaErr.mappings_malformed) {\n    parts.push(\"Every object in cultural_mappings must include story_element, element_type, narrative_function, target_representation, AND adaptation_reason — one of these was missing or the array itself was malformed.\");\n  }\n\n  const semViolations = failure.semantic_violations || [];\n  semViolations.forEach(v => {\n    if (v.includes(\"does not appear\")) {\n      parts.push(v + \" Make sure this exact name is written verbatim somewhere in your output (e.g. in a cultural_mappings entry, preservation_rules, or forbidden_adaptations).\");\n    } else if (v.includes(\"No preservation_rules\")) {\n      parts.push(\"You must provide at least one entry in preservation_rules — list explicit rules protecting the story's protected elements.\");\n    } else if (v.includes(\"forbidden_adaptations is empty\")) {\n      parts.push(\"You must provide at least one entry in forbidden_adaptations, describing an adaptation that would break a protected character or element.\");\n    } else {\n      parts.push(v);\n    }\n  });\n\n  if (parts.length === 0) return \"\";\n\n  return \"\\n\\nRETRY FEEDBACK — YOUR PREVIOUS ATTEMPT (#\" + retryCount + \") FAILED FOR THESE REASONS, FIX THEM THIS TIME:\\n\" +\n    parts.map((p, i) => (i + 1) + \". \" + p).join(\"\\n\") +\n    \"\\nDo not repeat the same mistake. Everything else about the task is unchanged.\";\n}\n\nconst retryFeedback = buildRetryFeedback(data.last_failure_reason, data.retry_count);\n\nconst prompt =\n  \"You are a cultural narrative adaptation engine. Be direct and concise in your reasoning — do not over-explain, go straight to the structured output. Your task is NOT to rewrite the story. \" +\n  \"Using the protected and adaptable elements below, generate a structured Locale Profile that defines \" +\n  \"how culturally adaptable story elements should be represented in the target culture: \" + clean(data.target_culture) + \". \" +\n\n  \"Story: \" + clean(data.source_title) + \" (\" + data.story_type + \", target audience \" + data.target_audience + \"). \" +\n\n  \"CHARACTER NAME RULE: The following character names are part of the story's identity and must NEVER be renamed, translated, or replaced, regardless of whether their role, species, or setting is adapted: \" + characterNamesStr + \". You may adapt a character's habitat, species-appropriate details, or cultural context, but the name itself must remain exactly as given, unchanged, in every part of your output. \" +\n\n  \"PROTECTED ELEMENTS - DO NOT CHANGE: \" +\n  \"Characters: \" + protectedCharactersStr + \". \" +\n  \"Relationships: \" + protectedRelationshipsStr + \". \" +\n  \"World rules: \" + protectedRulesStr + \". \" +\n  \"Core moral: \" + protectedMoralStr + \". \" +\n  \"Key protected events: \" + protectedEventsStr + \". \" +\n  \"Continuity constraints: \" + continuityStr + \". \" +\n\n  \"ADAPTABLE ELEMENTS - CAN BE REPRESENTED DIFFERENTLY IN TARGET CULTURE: \" +\n  \"Flexible locations: \" + adaptableLocationsStr + \". \" +\n  \"Adaptable elements: \" + adaptableElementsStr + \". \" +\n  \"Optional elements: \" + optionalElementsStr + \". \" +\n  \"Secondary events: \" + secondaryEventsStr + \". \" +\n  \"Other entities: \" + entitiesStr + \". \" +\n\n  \"RULES: Preserve all protected elements exactly as narrative functions, even if surface representation changes. \" +\n  \"Adapt only contextual and culturally dependent elements (habitat, species framing, objects, food, clothing, setting). \" +\n  \"Never put a character name inside target_representation as if it were being replaced — keep the original name and only describe how their surroundings or context are localized. \" +\n  \"Avoid stereotypes and unsupported cultural generalizations. \" +\n  \"For each adaptable element you choose to map, explain the narrative function it serves and why your target representation preserves that function. \" +\n\"SIZE LIMITS (to avoid truncation): each array in setting, social_context, cultural_elements and language_style has AT MOST 3 items; AT MOST 8 cultural_mappings; AT MOST 5 adaptation_principles, 5 preservation_rules, 5 forbidden_adaptations. Each string is ONE short sentence. \" +\n  \"Respond ONLY with valid JSON matching exactly this schema, no extra text, no markdown fences, no reasoning shown in the output: \" + outputSchema;\n\nconst finalPrompt = prompt + retryFeedback;\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 12000,\n  temperature: 0.2,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: finalPrompt }]\n});\n\nreturn {\n  story_id: data.story_id,\n  target_culture: data.target_culture,\n  retry_count: data.retry_count,\n  locale_prompt: finalPrompt,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        -224
+      ],
+      "id": "33df83ff-512a-4c05-b1f3-04b464ea0167",
+      "name": "Build Locale Profile Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2512,
+        -224
+      ],
+      "id": "0c08ae80-ef93-4949-ba72-47e07cd835b9",
+      "name": "LLM: Locale Profile",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.item.json;\nconst promptData = $('Build Locale Profile Prompt').item.json;\n\nlet rawText = \"\";\ntry {\n  rawText = response.choices[0].message.content;\n} catch (e) {\n  return {\n    parse_error: true,\n    error_message: \"No content in LLM response (exception): \" + e.message,\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nif (typeof rawText !== 'string' || rawText.trim() === '') {\n  return {\n    parse_error: true,\n    error_message: \"LLM response content is empty or not a string\",\n    raw_response: JSON.stringify(response),\n    story_id: promptData.story_id,\n    target_culture: promptData.target_culture\n  };\n}\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\n// Tentatives de réparation des erreurs JSON communes générées par le LLM\nfunction tryFixCommonJsonErrors(text) {\n  let fixed = text;\n  // \"]]\" accidentel -> \"]\" (le schéma ne contient jamais de tableau de tableaux)\n  fixed = fixed.replace(/\\]\\]/g, ']');\n  // \"}}\" accidentel entre deux propriétés -> \"}\"\n  fixed = fixed.replace(/\\}\\}(\\s*,\\s*\")/g, '}$1');\n  // guillemet fermant mal placé juste avant un crochet : \\\"] -> \"]\n  fixed = fixed.replace(/\\\\\"\\]/g, '\"]');\n  // virgule traînante avant } ou ]\n  fixed = fixed.replace(/,(\\s*[\\}\\]])/g, '$1');\n  return fixed;\n}\n\nlet localeProfile;\nlet usedFix = false;\n\ntry {\n  localeProfile = JSON.parse(cleanedText);\n} catch (firstError) {\n  try {\n    const fixedText = tryFixCommonJsonErrors(cleanedText);\n    localeProfile = JSON.parse(fixedText);\n    usedFix = true;\n  } catch (secondError) {\n    return {\n      parse_error: true,\n      error_message: \"JSON parse failed even after auto-fix: \" + secondError.message + \" (original error: \" + firstError.message + \")\",\n      raw_response: cleanedText,\n      story_id: promptData.story_id,\n      target_culture: promptData.target_culture\n    };\n  }\n}\n\nreturn {\n  parse_error: false,\n  auto_fixed: usedFix,\n  story_id: promptData.story_id,\n  target_culture: promptData.target_culture,\n  locale_profile: localeProfile,\n  retry_count: promptData.retry_count || 0 \n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        -224
+      ],
+      "id": "0257e1e5-6b89-4bd2-92e2-809baa4ba979",
+      "name": "Parse Locale Profile"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nif (item.parse_error) {\n  return {\n    ...item,\n    schema_valid: false,\n    schema_errors: { parse_failure: true, missing_fields: [], wrong_type_fields: [], mappings_malformed: false }\n  };\n}\nconst profile = item.locale_profile || {};\n\nconst requiredFields = [\n  \"target_culture\",\n  \"adaptation_principles\",\n  \"setting\",\n  \"social_context\",\n  \"cultural_elements\",\n  \"language_style\",\n  \"cultural_mappings\",\n  \"preservation_rules\",\n  \"forbidden_adaptations\"\n];\n\nconst missingFields = requiredFields.filter(f => profile[f] === undefined || profile[f] === null);\n\nconst arrayFields = [\"adaptation_principles\", \"cultural_mappings\", \"preservation_rules\", \"forbidden_adaptations\"];\nconst wrongTypeFields = arrayFields.filter(f => profile[f] !== undefined && !Array.isArray(profile[f]));\n\nconst mappingsValid = Array.isArray(profile.cultural_mappings)\n  ? profile.cultural_mappings.every(m =>\n      m && typeof m === \"object\" &&\n      \"story_element\" in m && \"target_representation\" in m && \"adaptation_reason\" in m\n    )\n  : false;\n\nconst schemaValid = missingFields.length === 0 && wrongTypeFields.length === 0 && mappingsValid;\n\nreturn {\n  ...item,\n  schema_valid: schemaValid,\n  schema_errors: {\n    missing_fields: missingFields,\n    wrong_type_fields: wrongTypeFields,\n    mappings_malformed: !mappingsValid\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        -224
+      ],
+      "id": "8f0f6811-d8ae-40e5-a1c8-6b3a9ca1dfaf",
+      "name": "Validate Schema"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst profile = item.locale_profile || {};\n\nconst contextData = $('Cultural Adaptation Context').item.json;\nconst protectedEl = contextData.protected_story_elements || {};\nconst allNames = contextData.protected_character_names || [];\n\nconst violations = [];\n\nconst profileText = JSON.stringify(profile).toLowerCase();\n\n// 1. Chaque nom de personnage principal doit apparaître tel quel dans le profil\nallNames.forEach(name => {\n  const nameLower = (name || \"\").toLowerCase();\n  if (nameLower && !profileText.includes(nameLower)) {\n    violations.push(\"Character name '\" + name + \"' does not appear anywhere in the locale profile — possible renaming.\");\n  }\n});\n\n// 2. preservation_rules ne doit pas être vide\nconst preservationRules = Array.isArray(profile.preservation_rules) ? profile.preservation_rules : [];\nif (preservationRules.length === 0) {\n  violations.push(\"No preservation_rules provided — protected elements are not explicitly guarded.\");\n}\n\n// 3. forbidden_adaptations ne doit pas être vide s'il y a des personnages protégés\nconst forbidden = Array.isArray(profile.forbidden_adaptations) ? profile.forbidden_adaptations : [];\nif (forbidden.length === 0 && allNames.length > 0) {\n  violations.push(\"forbidden_adaptations is empty despite protected characters existing.\");\n}\n\nconst semanticValid = violations.length === 0;\n\nreturn {\n  ...item,\n  semantic_valid: semanticValid,\n  semantic_violations: violations,\n  final_valid: item.schema_valid && semanticValid\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3152,
+        -224
+      ],
+      "id": "d3730cc9-d9b3-4506-9caa-32df817643d7",
+      "name": "Validate Semantic Constraints"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "17d04247-a45c-4649-9169-09b8032a94f9",
+              "leftValue": "={{ $json.final_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3392,
+        -224
+      ],
+      "id": "d13ef131-e7d5-4e7d-aac3-0dd7f9b2c9ff",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst retryCount = (item.retry_count || 0) + 1;\n\nreturn {\n  ...item,\n  retry_count: retryCount,\n  last_failure_reason: {\n    schema_errors: item.schema_errors,\n    semantic_violations: item.semantic_violations\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        -32
+      ],
+      "id": "298bb8f8-2154-4631-ade5-6a9444a43b7a",
+      "name": "Check Retry Count"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "locale_profiles",
+        "updateKey": "document_id",
+        "columns": "story_id, target_culture, locale_profile, schema_valid, semantic_valid, status, created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        3968,
+        -240
+      ],
+      "id": "463d6fb9-bb29-485c-9365-aca82d540453",
+      "name": "Create locale profile",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8e29caed-9124-4dec-905a-b27a87a22240",
+              "leftValue": "={{ $json.retry_count }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3760,
+        -32
+      ],
+      "id": "01e40a52-8d51-4de4-a423-1b114fb3fd76",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\n\nreturn {\n  json: {\n    log_id: Date.now().toString(),\n    workflow: 'locale_profile_generation',\n    story_id: item.story_id,\n    target_culture: item.target_culture,\n    step: 'locale_profile_validation',\n    status: 'failed_max_retries',\n    retry_count: item.retry_count,\n    message: 'Locale profile discarded after ' + item.retry_count + ' failed attempts.',\n    last_failure_reason: JSON.stringify(item.last_failure_reason || {}),\n    created_at: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3872,
+        208
+      ],
+      "id": "52baa765-f820-4c41-ae56-ab4b7803045d",
+      "name": "Prepare Failure Log"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "workflow_logs",
+        "documentId": "={{ $json.log_id }}",
+        "columns": "\tlog_id,workflow,story_id,target_culture,step,status,retry_count,message,last_failure_reason,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        4048,
+        208
+      ],
+      "id": "5cff5c37-8719-432b-96b4-80ec5b86c728",
+      "name": "Log Failure",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function sanitizeEmptyArrays(value) {\n  if (Array.isArray(value)) {\n    if (value.length === 0) return null;\n    return value.map(sanitizeEmptyArrays);\n  }\n  if (value && typeof value === 'object') {\n    const out = {};\n    for (const key of Object.keys(value)) {\n      out[key] = sanitizeEmptyArrays(value[key]);\n    }\n    return out;\n  }\n  return value;\n}\n\nconst item = $json;\n\nreturn [{\n  json: {\n    story_id: item.story_id,\n    document_id: item.story_id + '_' + item.target_culture, \n    target_culture: item.target_culture,\n    locale_profile: sanitizeEmptyArrays(item.locale_profile),\n    schema_valid: item.schema_valid,\n    semantic_valid: item.semantic_valid,\n    status: 'validated',\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3760,
+        -240
+      ],
+      "id": "8bb60bc6-af0d-498e-a934-4530fbe3bebb",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories",
+        "updateKey": "catalog_id",
+        "columns": "status, locale_profiles_success,locale_profiles_failed,updated_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        2176,
+        -432
+      ],
+      "id": "33e38145-0c72-4652-9b7e-682fff9e9b5b",
+      "name": "Create or update a document",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst storyId = $('Loop Over Items').item.json.story_id || $('Loop Over Items').item.json.id;\nconst counts = staticData.counts?.[storyId] || { success: 0, failed: 0 };\n\nreturn [{\n  json: {\n    story_id: storyId,\n    status: 'locale_profiles_generated',\n    locale_profiles_success: counts.success,\n    locale_profiles_failed: counts.failed,\n    updated_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        -432
+      ],
+      "id": "07274b8b-704e-466c-9b25-81201f4291c6",
+      "name": "Update raw_story Status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst storyId = $('Loop Over Items').item.json.story_id || $('Loop Over Items').item.json.id;\n\nif (!staticData.counts) staticData.counts = {};\nif (!staticData.counts[storyId]) staticData.counts[storyId] = { success: 0, failed: 0 };\n\nstaticData.counts[storyId].success += 1;\n\nreturn [$json];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4640,
+        384
+      ],
+      "id": "8bb34fb8-609b-4cf2-8e6f-61bbd4621077",
+      "name": "success"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst storyId = $('Loop Over Items').item.json.story_id || $('Loop Over Items').item.json.id;\n\nif (!staticData.counts) staticData.counts = {};\nif (!staticData.counts[storyId]) staticData.counts[storyId] = { success: 0, failed: 0 };\n\nstaticData.counts[storyId].failed += 1;\n\nreturn [$json];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        304
+      ],
+      "id": "01abc2ed-19d9-47a7-9526-189ab67c267e",
+      "name": "failure"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get raw story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get story blueprint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story bible": {
+      "main": [
+        [
+          {
+            "node": "Target Cultures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get story blueprint": {
+      "main": [
+        [
+          {
+            "node": "Get story bible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get raw story": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Target Cultures": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Update raw_story Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cultural Adaptation Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cultural Adaptation Context": {
+      "main": [
+        [
+          {
+            "node": "Build Locale Profile Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Locale Profile Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: Locale Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Locale Profile": {
+      "main": [
+        [
+          {
+            "node": "Parse Locale Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Locale Profile": {
+      "main": [
+        [
+          {
+            "node": "Validate Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Schema": {
+      "main": [
+        [
+          {
+            "node": "Validate Semantic Constraints",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Semantic Constraints": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Retry Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create locale profile": {
+      "main": [
+        [
+          {
+            "node": "success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Count": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Build Locale Profile Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Failure Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Failure Log": {
+      "main": [
+        [
+          {
+            "node": "Log Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Failure": {
+      "main": [
+        [
+          {
+            "node": "failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Create locale profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a document": {
+      "main": [
+        []
+      ]
+    },
+    "Update raw_story Status": {
+      "main": [
+        [
+          {
+            "node": "Create or update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "success": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "failure": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 489,
+  "triggerCount": 0,
+  "tags": []
+}

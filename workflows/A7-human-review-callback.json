@@ -1,0 +1,1049 @@
+{
+  "updatedAt": "2026-08-31T21:14:09.437Z",
+  "createdAt": "2026-06-16T19:32:17.749Z",
+  "id": "bHL-arI0bpEd6sJFPV0Bo",
+  "name": "A7-Human Review Callback",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "ready_for_illustration",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "approved_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -160
+      ],
+      "id": "da153c7c-19fe-4c2a-949f-1907fb6f903d",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "path": "human-review-callback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -784,
+        16
+      ],
+      "id": "fb7b2096-c6d4-481b-8c59-a2a4bc12251e",
+      "name": "Webhook",
+      "webhookId": "62bad911-44a4-4603-8884-831ad74441eb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "5e94a623-f5c3-49fd-b06a-c73adad2531d",
+              "name": "retry_count",
+              "value": "={{ ($('Get a document').item.json.retry_count ?? 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        240
+      ],
+      "id": "5a914ece-be32-40f9-94ad-f58bd1d4de59",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ad083184-624d-49f6-bf35-fee032905ba2",
+              "leftValue": "={{ $json.retry_count }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        240
+      ],
+      "id": "501d4b0d-ae15-450e-bc09-b3f26353b07f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"received\": true }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -16,
+        -176
+      ],
+      "id": "442a0d08-c537-4d14-a55b-403ceb9d6af4",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "documentId": "={{ $('Webhook').item.json.query.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        -176
+      ],
+      "id": "6a4edc14-f20c-4cb1-afe5-9b3a7623e188",
+      "name": "Get a document",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.query.action }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "db071246-521f-4959-94cf-5f21b1d584b5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e8ecb3c0-d976-4247-b714-4a9f3d2e2675",
+                    "leftValue": "={{ $('Webhook').item.json.query.action }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reject"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        64
+      ],
+      "id": "203d0537-d746-4b3b-8c34-e089c4bcb5f4",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "generated_stories",
+        "updateKey": "story_id",
+        "columns": "status,approved_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        -160
+      ],
+      "id": "975c97d8-7e62-4602-8787-a3f119d3ba31",
+      "name": "Update localized_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "workflow_logs",
+        "documentId": "={{ $now.toMillis() }}",
+        "columns": "log_id,workflow,story_id,step,status,message,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        -160
+      ],
+      "id": "ac1b519e-ca4a-4c1f-b73d-58eb432a82d8",
+      "name": "workflow_logs (Approve)",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "success",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "created_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "b8c97409-c5bf-43fc-bfb0-4b29c2a0e14b",
+              "name": "log_id",
+              "value": "={{ $now.toMillis() }}",
+              "type": "string"
+            },
+            {
+              "id": "064ef8fa-e9fa-49ee-a011-c96f181cdabe",
+              "name": "workflow",
+              "value": "human_review_callback",
+              "type": "string"
+            },
+            {
+              "id": "808bd0d1-3b8d-466b-b49d-3d3988c835ab",
+              "name": "step",
+              "value": "admin_approved",
+              "type": "string"
+            },
+            {
+              "id": "69482b58-997a-42cf-a4f1-1b63536f483b",
+              "name": "message",
+              "value": "Story approved by admin, ready for illustration",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        -160
+      ],
+      "id": "fdde37f0-9ada-46e2-bd2f-007deb943a52",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "rejected_permanently",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "retry_count",
+              "value": "={{ $json.retry_count }}",
+              "type": "number"
+            },
+            {
+              "id": "064ef8fa-e9fa-49ee-a011-c96f181cdabe",
+              "name": "rejected_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        128
+      ],
+      "id": "a11bbd06-a0b9-4c4a-8b33-70b1090befc2",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "localized_stories",
+        "updateKey": "=story_id ",
+        "columns": "status,retry_count,rejected_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        128
+      ],
+      "id": "b6a35747-b334-476e-9e79-d3d13c4a28a5",
+      "name": "Update localized_stories (rejected_permanently)",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "workflow_logs",
+        "documentId": "={{ $now.toMillis() }}",
+        "columns": "log_id,workflow,story_id,step,status,message,retry_count,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        128
+      ],
+      "id": "efef3658-b349-4937-a6ea-99e810ce477b",
+      "name": "workflow_logs (rejected_permanently)",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "rejected",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "created_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "b8c97409-c5bf-43fc-bfb0-4b29c2a0e14b",
+              "name": "log_id",
+              "value": "={{ $now.toMillis() }}",
+              "type": "string"
+            },
+            {
+              "id": "064ef8fa-e9fa-49ee-a011-c96f181cdabe",
+              "name": "workflow",
+              "value": "human_review_callback",
+              "type": "string"
+            },
+            {
+              "id": "808bd0d1-3b8d-466b-b49d-3d3988c835ab",
+              "name": "step",
+              "value": "admin_rejected_permanently",
+              "type": "string"
+            },
+            {
+              "id": "69482b58-997a-42cf-a4f1-1b63536f483b",
+              "name": "message",
+              "value": "Story rejected permanently after 3 retries",
+              "type": "string"
+            },
+            {
+              "id": "d96c3449-273a-41aa-aa6c-728e84e27f67",
+              "name": "retry_count",
+              "value": "={{ $('Edit Fields2').item.json.retry_count }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1760,
+        128
+      ],
+      "id": "7e0b6128-bc5a-40e7-8013-ef0509e35fbe",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "ready_for_processing",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "retry_count",
+              "value": "={{ $json.retry_count }}",
+              "type": "number"
+            },
+            {
+              "id": "064ef8fa-e9fa-49ee-a011-c96f181cdabe",
+              "name": "rejected_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        384
+      ],
+      "id": "94959b78-3a28-474a-ba1d-15c2e1ca4830",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "workflow_logs",
+        "documentId": "={{ $now.toMillis() }}",
+        "columns": "log_id,workflow,story_id,step,status,message,retry_count,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1936,
+        384
+      ],
+      "id": "6116ae37-02fa-4dfc-a25c-5deec5ce2642",
+      "name": "workflow_logs (rejected_permanently)1",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b8c97409-c5bf-43fc-bfb0-4b29c2a0e14b",
+              "name": "log_id",
+              "value": "={{ $now.toMillis() }}",
+              "type": "string"
+            },
+            {
+              "id": "064ef8fa-e9fa-49ee-a011-c96f181cdabe",
+              "name": "workflow",
+              "value": "human_review_callback",
+              "type": "string"
+            },
+            {
+              "id": "7a9f18b4-4eea-4da8-92b8-cf730748ddde",
+              "name": "story_id",
+              "value": "={{ $('Webhook').item.json.query.story_id }}",
+              "type": "string"
+            },
+            {
+              "id": "808bd0d1-3b8d-466b-b49d-3d3988c835ab",
+              "name": "step",
+              "value": "admin_rejected_retry",
+              "type": "string"
+            },
+            {
+              "id": "deee6fac-ccbe-49ad-b712-d916e38a7ade",
+              "name": "status",
+              "value": "rejected",
+              "type": "string"
+            },
+            {
+              "id": "69482b58-997a-42cf-a4f1-1b63536f483b",
+              "name": "message",
+              "value": "Story rejected by admin, requeued for regeneration",
+              "type": "string"
+            },
+            {
+              "id": "d96c3449-273a-41aa-aa6c-728e84e27f67",
+              "name": "retry_count",
+              "value": "={{ $('Edit Fields2').item.json.retry_count }}",
+              "type": "string"
+            },
+            {
+              "id": "3d461817-d88d-4afa-904f-5baf10ca501e",
+              "name": "created_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1744,
+        384
+      ],
+      "id": "c0eedbf3-81b4-45f8-969b-9dd5dc4c914b",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "localized_stories",
+        "updateKey": "story_id",
+        "columns": "status,retry_count,rejected_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        384
+      ],
+      "id": "27722d71-a2bc-4176-926c-ce1e38a6ba08",
+      "name": "Update localized_stories (retry)",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3b41e793-c37a-40f4-9ba2-3600e493de98",
+              "leftValue": "={{ $json.token_valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "df491b69-c5e1-4229-a4b3-7d8ce6dab2ec",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook').first().json.query;\nconst tokenDoc = $input.first().json;\n\nconst receivedToken = webhookData.token;\nconst validToken = receivedToken === tokenDoc.token_approve || \n                   receivedToken === tokenDoc.token_reject;\nconst notUsed = tokenDoc.used === false || tokenDoc.used === 'false';\n\nreturn {\n  ...tokenDoc,\n  token_valid: validToken && notUsed,\n  received_token: receivedToken,\n  action: webhookData.action,\n  story_id: webhookData.story_id\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        16
+      ],
+      "id": "5a58d9ff-dba3-4633-872f-ab34e913da7e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"error\": \"This link has already been used or is invalid\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        96,
+        224
+      ],
+      "id": "406848e2-3d07-4307-9cd8-6ff53e733862",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "review_tokens",
+        "updateKey": "story_id",
+        "columns": "used,used_at,action"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        -176
+      ],
+      "id": "72945f54-84d5-4678-b928-cc6d23413e6b",
+      "name": "Create or update a document",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a03df51-279c-4562-801d-08e4325cae1b",
+              "name": "used",
+              "value": "true",
+              "type": "string"
+            },
+            {
+              "id": "9ca378bb-d937-4ae9-bcf3-7ad1bd6d1173",
+              "name": "used_at",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "9795c839-e2ef-43b2-a314-70586d91395d",
+              "name": "action",
+              "value": "={{ $json.action }}",
+              "type": "string"
+            },
+            {
+              "id": "ec8b006a-5aff-4d36-bc01-8074e04fe43a",
+              "name": "story_id",
+              "value": "={{ $json.story_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -176
+      ],
+      "id": "02eef055-a04b-4d92-bb7e-2a3ff842da12",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "review_tokens",
+        "documentId": "={{ $('Webhook').item.json.query.story_id }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        -528,
+        16
+      ],
+      "id": "31ca7ea5-946f-440f-9094-b63015f8967f",
+      "name": "Get review_tokens",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Update localized_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get review_tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update localized_stories": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "workflow_logs (Approve)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Update localized_stories (rejected_permanently)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update localized_stories (rejected_permanently)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "workflow_logs (rejected_permanently)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Update localized_stories (retry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "workflow_logs (rejected_permanently)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update localized_stories (retry)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a document": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Create or update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get review_tokens": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": "55d74a56-438a-4523-b56b-0a07bde1b01a",
+  "versionCounter": 422,
+  "triggerCount": 1,
+  "tags": []
+}

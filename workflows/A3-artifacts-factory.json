@@ -1,0 +1,751 @@
+{
+  "updatedAt": "2026-10-05T10:30:25.849Z",
+  "createdAt": "2026-04-11T12:50:01.754Z",
+  "id": "V-ePS3ACppFCfjQ_RYXrH",
+  "name": "A3-Artifacts Factory",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -1120
+      ],
+      "id": "a051209e-8101-4327-bf38-73ddc6aaa11b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"accounts/fireworks/models/glm-5p3-flash\",\n  \"max_tokens\": 1500,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a story analyst. Return ONLY valid JSON. No markdown, no explanation, no code blocks.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify(\"Analyze this children's story.\\n\\nTitle: \" + $json.source_title + \"\\n\\nStory:\\n\" + $json.story_text + \"\\n\\nReturn exactly this JSON:\\n{\\n  \\\"canonical_summary\\\": \\\"2-3 sentence summary\\\",\\n  \\\"motifs\\\": [\\\"motif1\\\"],\\n  \\\"characters\\\": [{\\\"name\\\": \\\"name\\\", \\\"role\\\": \\\"protagonist\\\", \\\"traits\\\": [\\\"trait\\\"]}],\\n  \\\"core_conflict\\\": \\\"one sentence\\\",\\n  \\\"core_resolution\\\": \\\"one sentence\\\",\\n  \\\"moral\\\": \\\"one sentence\\\",\\n  \\\"risk_tags\\\": [],\\n  \\\"story_family\\\": \\\"fairy_tale\\\",\\n  \\\"origin_regions\\\": [\\\"global\\\"],\\n  \\\"age_min\\\": 4,\\n  \\\"age_max\\\": 8,\\n  \\\"target_length_words\\\": 500\\n}\") }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1152,
+        -1104
+      ],
+      "id": "414a6337-e557-41b2-a615-421ade1daa5b",
+      "name": "LLM: normalize",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "normalized_stories",
+        "documentId": "={{ $json.normalized_id }}",
+        "columns": "normalized_id,raw_story_id,catalog_id,source_title,story_url,canonical_summary,motifs,characters,core_conflict,core_resolution,moral,risk_tags,story_family,origin_regions,age_min,age_max,target_length_words,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        -1104
+      ],
+      "id": "2651fdf4-ee20-45f9-8492-a1ef116f473d",
+      "name": "Create normalized_stories",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2208,
+        -784
+      ],
+      "id": "6fc4c790-d19e-4075-a2d4-916662866c3f",
+      "name": "LLM: compile blueprint",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d8051d12-eef2-440e-901c-b63e571912f4",
+              "leftValue": "=\t{{ $json._valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3088,
+        -1024
+      ],
+      "id": "fb9bcf3f-b1c9-40ac-9d53-1600849fcadb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_blueprints",
+        "documentId": "={{ $json.story_id }}",
+        "columns": "story_id,source_title,blueprint,status,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        3520,
+        -1008
+      ],
+      "id": "bf2f0430-49d2-4858-9db3-f4713ed40604",
+      "name": "Create story_blueprints",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "upsert",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories",
+        "updateKey": "catalog_id",
+        "columns": "editorial_status, catalog_id,updated_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        4240,
+        -544
+      ],
+      "id": "398f7154-f2a2-4ae0-937b-90a650f03e72",
+      "name": "Update raw_stories status",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices[0].message.content;\n\nconst cleaned = content\n  .replace(/^```json\\s*/i, '')\n  .replace(/```\\s*$/i, '')\n  .trim();\n\nconst normalized = JSON.parse(cleaned);\n\n// Use $('Get raw_story').item instead of .first()\n// This gets the paired item for the current loop iteration\nconst prevItem = $('Get raw_story').item.json;\n\nreturn [{\n  json: {\n    normalized_id: prevItem.raw_story_id || prevItem._id,\n    raw_story_id: prevItem.raw_story_id || prevItem._id,\n    catalog_id: prevItem.catalog_id,\n    source_title: prevItem.source_title,\n    story_url: prevItem.story_url,\n    ...normalized,\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        -1104
+      ],
+      "id": "25f3e0d4-1f3b-44f2-9366-50c5d0c74af3",
+      "name": "parse LLM response"
+    },
+    {
+      "parameters": {
+        "errorType": "errorObject",
+        "errorObject": "=// ============================================================\n// Stop and Error\n// Surfaces the exact validation failure reason instead of a\n// generic error, so failures are debuggable directly from the\n// n8n execution log.\n// ============================================================\n\nconst errors = $json.validation_errors || ['Unknown validation failure'];\nconst storyId = $json.story_id || 'unknown';\nconst title = $json.source_title || 'unknown';\n\nthrow new Error(\n  `Artifact validation failed for story_id=\"${storyId}\" (\"${title}\"): ` +\n  errors.join(' | ')\n);"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        -1184
+      ],
+      "id": "2fff211f-40cb-4141-bb2d-d4a2696b6579",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "raw_stories"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -1120
+      ],
+      "id": "ccfa9706-b298-45cb-bcc8-d09e0449f393",
+      "name": "Get raw_story",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "80c2922b-67a3-44b0-8084-a7ba60a78fd0",
+              "leftValue": "={{ $json.raw_story_id }}",
+              "rightValue": "40ec4d125d8d2dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        -1120
+      ],
+      "id": "79cd66cc-ab87-4635-86f5-1d4219db4dc8",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        912,
+        -1120
+      ],
+      "id": "6038a3db-4b27-47ec-a358-e0c6a5bebb4c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0].json;\n\nreturn [{\n  json: {\n    normalized_id: String(item.normalized_id),\n    raw_story_id: String(item.raw_story_id),\n    catalog_id: String(item.catalog_id),\n    source_title: String(item.source_title),\n    story_url: String(item.story_url),\n    canonical_summary: String(item.canonical_summary),\n    motifs: JSON.stringify(item.motifs),\n    characters: JSON.stringify(item.characters),\n    core_conflict: String(item.core_conflict),\n    core_resolution: String(item.core_resolution),\n    moral: String(item.moral),\n    risk_tags: JSON.stringify(item.risk_tags),\n    story_family: String(item.story_family),\n    origin_regions: JSON.stringify(item.origin_regions),\n    age_min: String(item.age_min),\n    age_max: String(item.age_max),\n    target_length_words: String(item.target_length_words),\n    created_at: String(item.created_at)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        -1104
+      ],
+      "id": "2fab6ff5-fb1d-4161-a23d-15ee39bbc6ef",
+      "name": "Code (to string)"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    catalog_id: $json._id,\n    editorial_status: 'ready_for_locale_profile_generation',\n    updated_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3920,
+        -864
+      ],
+      "id": "8a2a5081-5cb0-427c-bc87-25b99c5b02ef",
+      "name": "Edit editorial_status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create normalized_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst story_id = data.normalized_id;\nif (!story_id) {\n  throw new Error('normalized_id manquant sur Create normalized_stories — vérifie le node Firestore.');\n}\nconst source_title = clean(data.source_title || '');\n\n// Champs JSON stringifiés à parser\nconst safeParse = (str, fallback) => {\n  try { return JSON.parse(str); } catch (e) { return fallback; }\n};\nconst motifs = safeParse(data.motifs, []);\nconst characters = safeParse(data.characters, []);\n\n// Reconstruction d'un texte source structuré à partir des champs normalisés\nconst charactersList = characters\n  .map((c, i) => `${i + 1}. ${c.name} (${c.role}) — traits: ${(c.traits || []).join(', ')}`)\n  .join('\\n');\n\nconst source_text =\n\"SUMMARY: \" + clean(data.canonical_summary) + \"\\n\" +\n\"CORE CONFLICT: \" + clean(data.core_conflict) + \"\\n\" +\n\"CORE RESOLUTION: \" + clean(data.core_resolution) + \"\\n\" +\n\"MORAL: \" + clean(data.moral) + \"\\n\" +\n\"MOTIFS: \" + motifs.join(', ') + \"\\n\" +\n\"STORY FAMILY: \" + clean(data.story_family) + \"\\n\" +\n\"TARGET AGE: \" + data.age_min + \"-\" + data.age_max + \"\\n\" +\n\"KNOWN CHARACTERS (use these exact names, roles and order — do not rename or reorder):\\n\" + charactersList;\n\nconst schema = `{\n  \"story_id\": \"\",\n  \"source_title\": \"\",\n  \"story_type\": \"\",\n  \"target_audience\": \"\",\n  \"core_theme\": [],\n  \"core_moral\": [],\n  \"narrative_goal\": \"\",\n  \"initial_state\": {\n    \"situation\": \"\",\n    \"protagonist_goal\": \"\",\n    \"initial_conflict\": \"\"\n  },\n  \"story_structure\": [\n    {\n      \"sequence\": 1,\n      \"phase\": \"\",\n      \"narrative_function\": \"\",\n      \"summary\": \"\",\n      \"characters_involved\": [],\n      \"key_events\": [],\n      \"required_outcome\": \"\"\n    }\n  ],\n  \"key_events\": [\n    {\n      \"event_id\": \"\",\n      \"description\": \"\",\n      \"narrative_function\": \"\",\n      \"importance\": \"\",\n      \"is_protected\": true\n    }\n  ],\n  \"location_functions\": [\n    {\n      \"location_id\": \"\",\n      \"narrative_function\": \"\",\n      \"original_location\": \"\",\n      \"adaptability\": \"\"\n    }\n  ],\n  \"conflicts\": [\n    {\n      \"type\": \"\",\n      \"description\": \"\",\n      \"resolution\": \"\"\n    }\n  ],\n  \"required_elements\": [],\n  \"optional_elements\": [],\n  \"adaptable_elements\": [],\n  \"protected_elements\": []\n}`;\n\nconst prompt =\n\"You are a narrative structure analyst. You extract a STRUCTURAL blueprint from a children's story (ages \" + data.age_min + \"-\" + data.age_max + \"). \" +\n\"This blueprint will later be used by a separate system to adapt the story to different cultures WITHOUT losing its narrative identity. \" +\n\"You do not write prose. You do not adapt anything culturally. You only extract structure.\\n\\n\" +\n\n\"ABSOLUTE RULES:\\n\" +\n\"1. Respond ONLY with valid JSON. No markdown code fences, no comments, no text before or after the JSON.\\n\" +\n\"2. Use EXACTLY the field names in the schema below, at every level. Never add, remove, or rename a field. Never return null — use \\\"\\\" or [] instead.\\n\" +\n\"3. Set \\\"story_id\\\" to exactly: \" + story_id + \"\\n\" +\n\"4. Set \\\"source_title\\\" to exactly: \" + source_title + \"\\n\" +\n\"5. Use the KNOWN CHARACTERS list below exactly as given (same names, same order) when assigning \\\"characters_involved\\\" ids: the 1st character = char_001, 2nd = char_002, etc.\\n\" +\n\"6. \\\"story_structure\\\" must cover the full narrative arc in order (sequence: 1, 2, 3, ...). Each \\\"phase\\\" must be one of: setup, inciting_incident, rising_action, climax, falling_action, resolution.\\n\" +\n\"7. \\\"key_events\\\" must use ids formatted as \\\"evt_001\\\", \\\"evt_002\\\", etc. Set \\\"is_protected\\\": true for any event whose removal or change would break the plot or the moral.\\n\" +\n\"8. \\\"location_functions\\\" must use ids formatted as \\\"loc_001\\\", \\\"loc_002\\\", etc. Describe the NARRATIVE FUNCTION of each location (e.g. \\\"place of safety\\\", \\\"place of danger/testing\\\"), not just its name. Set \\\"adaptability\\\" to exactly one of: \\\"fixed\\\", \\\"flexible\\\", \\\"fully_adaptable\\\".\\n\" +\n\"9. \\\"protected_elements\\\" must list every element (character names, key objects, the moral lesson, core relationships, the ending) that MUST remain unchanged in any cultural adaptation.\\n\" +\n  \"9b. HARD RULE: the names of all MAIN characters (protagonist, mentor, antagonist, and any character central to the plot) are part of the story's identity and must NEVER be translated, localized, or replaced — they must appear verbatim in \\\"protected_elements\\\", using the exact same spelling as in KNOWN CHARACTERS. Only background/minor character names may be adapted, and only if they are NOT listed in KNOWN CHARACTERS.\\n\" +\n\"10. \\\"adaptable_elements\\\" must list every element that CAN be freely changed for a target culture.\\n\" +\n\"11. \\\"required_elements\\\" = elements that must appear in every adaptation in some form. \\\"optional_elements\\\" = elements that can be dropped entirely.\\n\" +\n\"12. Keep the output CONCISE to avoid truncation: AT MOST 8 story_structure steps, AT MOST 8 key_events, AT MOST 5 location_functions, AT MOST 4 conflicts. Each 'summary'/'description' field must be ONE short sentence maximum.\\n\\n\" +\n\n\"SCHEMA (follow exactly):\\n\" + schema + \"\\n\\n\" +\n\"SOURCE STORY TITLE: \" + source_title + \"\\n\" +\n\"SOURCE STORY DATA:\\n\" + source_text;\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 8000,\n  temperature: 0.2,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  story_id,\n  source_title,\n  characters,\n  blueprint_prompt: prompt,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        -784
+      ],
+      "id": "b00cf07c-33f3-4906-b574-f4b57a7f303c",
+      "name": "Build Blueprint Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Create normalized_stories').item.json;\n\nconst clean = (str) => (str || '')\n  .replace(/\\\\/g, '')\n  .replace(/\"/g, \"'\")\n  .replace(/\\n/g, ' ')\n  .replace(/\\r/g, '')\n  .trim();\n\nconst story_id = data.normalized_id;\nif (!story_id) {\n  throw new Error('normalized_id manquant sur Create normalized_stories — vérifie le node Firestore.');\n}\nconst source_title = clean(data.source_title || '');\n\nconst safeParse = (str, fallback) => {\n  try { return JSON.parse(str); } catch (e) { return fallback; }\n};\nconst motifs = safeParse(data.motifs, []);\nconst characters = safeParse(data.characters, []);\n\nconst charactersList = characters\n  .map((c, i) => `${i + 1}. ${c.name} (${c.role}) — traits: ${(c.traits || []).join(', ')}`)\n  .join('\\n');\n\nconst source_text =\n\"SUMMARY: \" + clean(data.canonical_summary) + \"\\n\" +\n\"CORE CONFLICT: \" + clean(data.core_conflict) + \"\\n\" +\n\"CORE RESOLUTION: \" + clean(data.core_resolution) + \"\\n\" +\n\"MORAL: \" + clean(data.moral) + \"\\n\" +\n\"MOTIFS: \" + motifs.join(', ') + \"\\n\" +\n\"KNOWN CHARACTERS (use these exact names, roles and order — do not rename, reorder, or drop any of them):\\n\" + charactersList;\n\nconst schema = `{\n  \"story_id\": \"\",\n  \"source_title\": \"\",\n  \"characters\": [\n    {\n      \"character_id\": \"\",\n      \"name\": \"\",\n      \"role\": \"\",\n      \"description\": \"\",\n      \"traits\": [],\n      \"goals\": [],\n      \"motivations\": [],\n      \"important_attributes\": {},\n      \"protected_attributes\": []\n    }\n  ],\n  \"relationships\": [\n    {\n      \"source_character_id\": \"\",\n      \"target_character_id\": \"\",\n      \"relationship_type\": \"\",\n      \"description\": \"\",\n      \"is_protected\": true\n    }\n  ],\n  \"important_entities\": [\n    {\n      \"entity_id\": \"\",\n      \"name\": \"\",\n      \"type\": \"\",\n      \"description\": \"\",\n      \"narrative_role\": \"\"\n    }\n  ],\n  \"world_rules\": [\n    {\n      \"rule\": \"\",\n      \"is_protected\": true\n    }\n  ],\n  \"continuity_constraints\": [\n    \"\"\n  ]\n}`;\n\nconst prompt =\n\"You are a canon-keeper extracting the Story Bible from a children's story (ages \" + data.age_min + \"-\" + data.age_max + \"). \" +\n\"This Story Bible will later be used, together with a separate Story Blueprint for the SAME story_id, by a cultural adaptation system. \" +\n\"You do not write prose. You do not adapt anything culturally. You only extract canon.\\n\\n\" +\n\n\"ABSOLUTE RULES:\\n\" +\n\"1. Respond ONLY with valid JSON. No markdown code fences, no comments, no text before or after the JSON.\\n\" +\n\"2. Use EXACTLY the field names in the schema below, at every level. Never add, remove, or rename a field. Never return null — use \\\"\\\", [], or {} instead.\\n\" +\n\"3. Set \\\"story_id\\\" to exactly: \" + story_id + \"\\n\" +\n\"4. Set \\\"source_title\\\" to exactly: \" + source_title + \"\\n\" +\n\"5. The \\\"characters\\\" array MUST contain exactly the characters listed in KNOWN CHARACTERS below, in the SAME order, with the SAME names and roles. Assign ids char_001, char_002, etc. in that order. Do not add characters not in this list. Do not omit any of them.\\n\" +\n\"6. Use the \\\"traits\\\" already given in KNOWN CHARACTERS as a base — you may add 1-2 more if clearly implied by the story, but do not contradict them.\\n\" +\n\"7. \\\"protected_attributes\\\" is a FIXED LABEL LIST, not values. For every character, it must be an array containing ONLY a subset of these exact strings: \\\"name\\\", \\\"core personality trait\\\", \\\"core goal\\\", \\\"defining physical or moral trait\\\". NEVER put an actual value there (e.g. do NOT write \\\"Simba\\\" or \\\"brave\\\" or \\\"golden mane\\\" inside protected_attributes — those belong in \\\"name\\\", \\\"traits\\\", and \\\"important_attributes\\\" instead). Example for a character named Simba with trait 'brave': \\\"protected_attributes\\\": [\\\"name\\\", \\\"core personality trait\\\", \\\"core goal\\\"].\\n\" +\n  \"7b. HARD RULE: for every character listed in KNOWN CHARACTERS, \\\"protected_attributes\\\" MUST include \\\"name\\\" — with no exception. Main character names carry the story's identity across all cultural adaptations and must never be localized, translated, or replaced with a culturally equivalent name.\\n\" +\n\"8. \\\"important_attributes\\\" is a flat key-value object for other notable attributes (age, occupation, appearance) that CAN be adapted.\\n\" +\n\"9. \\\"relationships\\\" must reference character_id values from the \\\"characters\\\" array only. Set \\\"is_protected\\\": true for any relationship whose nature must not change (parent/child, mentor/student, hero/villain).\\n\" +\n\"10. \\\"important_entities\\\" covers non-character plot elements (objects, key locations as narrative entities, institutions). Use ids formatted as \\\"ent_001\\\", etc.\\n\" +\n\"11. \\\"world_rules\\\" = the internal logic of the story's world that must stay consistent across any adaptation.\\n\" +\n\"12. \\\"continuity_constraints\\\" = plain-language statements a rewritten version must respect.\\n\" +\n\"13. Keep the output CONCISE to avoid truncation: AT MOST 6 relationships, AT MOST 5 important_entities, AT MOST 5 world_rules, AT MOST 5 continuity_constraints. Each 'description' field must be ONE short sentence maximum.\\n\\n\" +\n\n\"SCHEMA (follow exactly):\\n\" + schema + \"\\n\\n\" +\n\"SOURCE STORY TITLE: \" + source_title + \"\\n\" +\n\"SOURCE STORY DATA:\\n\" + source_text;\n\nconst fireworks_body = JSON.stringify({\n  model: \"accounts/fireworks/models/glm-5p3-flash\",\n  max_tokens: 8000,\n  temperature: 0.2,\n  reasoning_effort: \"low\",\n  messages: [{ role: \"user\", content: prompt }]\n});\n\nreturn {\n  story_id,\n  source_title,\n  characters,\n  bible_prompt: prompt,\n  fireworks_body\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        -1296
+      ],
+      "id": "5c91a915-aa5f-41c0-9314-f97462a00f63",
+      "name": "Build Bible Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.fireworks.ai/inference/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.fireworks_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2208,
+        -1296
+      ],
+      "id": "277be47f-2e45-43e1-a7d0-2b1e666b03f1",
+      "name": "LLM: compile StoryBible",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "geoXbECGvWmkTpUT",
+          "name": "Fireworks AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// Validate Artifacts\n// Combines the Bible and Blueprint produced in parallel for the\n// SAME loop iteration, cross-checks their consistency, and\n// flags the result with _valid + validation_errors.\n// Mode: Run Once for All Items (required for $input.all()).\n// ============================================================\n\nconst items = $input.all();\n\n// Identify each branch by its distinguishing key rather than by\n// array position, since parallel branches are not guaranteed to\n// arrive in a fixed order.\nconst bibleWrap = items.find(i => i.json.bible)?.json;\nconst blueprintWrap = items.find(i => i.json.blueprint)?.json;\n\nconst errors = [];\n\nconst bib = bibleWrap?.bible;\nconst bp = blueprintWrap?.blueprint;\n\n// --- Presence checks ---\nif (!bib) errors.push('Bible is missing for this iteration');\nif (!bp) errors.push('Blueprint is missing for this iteration');\n\n// --- Cross-branch consistency checks (only if both exist) ---\nif (bib && bp) {\n\n  // Guard against loop desynchronization: both branches must\n  // belong to the exact same story.\n  if (bib.story_id !== bp.story_id) {\n    errors.push(\n      `story_id mismatch: bible.story_id=\"${bib.story_id}\" vs blueprint.story_id=\"${bp.story_id}\" ` +\n      `(possible loop desynchronization between parallel branches)`\n    );\n  }\n\n  // --- Required Bible fields ---\n  if (!Array.isArray(bib.characters) || bib.characters.length === 0) {\n    errors.push('bible.characters is empty or missing');\n  }\n  if (!Array.isArray(bib.world_rules) || bib.world_rules.length === 0) {\n    errors.push('bible.world_rules is empty or missing');\n  }\n\n  // --- Required Blueprint fields ---\n  if (!Array.isArray(bp.story_structure) || bp.story_structure.length === 0) {\n    errors.push('blueprint.story_structure is empty or missing');\n  }\n  if (!Array.isArray(bp.key_events) || bp.key_events.length === 0) {\n    errors.push('blueprint.key_events is empty or missing');\n  }\n  if (!Array.isArray(bp.protected_elements) || bp.protected_elements.length === 0) {\n    errors.push('blueprint.protected_elements is empty or missing');\n  }\n\n  // --- Cross-reference check: every character_id used in the\n  // Blueprint's story_structure must exist in the Bible's\n  // characters array. This guarantees the two artifacts stay\n  // usable together during later cultural adaptation. ---\n  if (Array.isArray(bib.characters) && Array.isArray(bp.story_structure)) {\n    const bibleIds = new Set(bib.characters.map(c => c.character_id));\n    const usedInBlueprint = new Set();\n    bp.story_structure.forEach(step => {\n      (step.characters_involved || []).forEach(id => usedInBlueprint.add(id));\n    });\n    const missingInBible = [...usedInBlueprint].filter(id => !bibleIds.has(id));\n    if (missingInBible.length > 0) {\n      errors.push(\n        'character_id(s) referenced in blueprint.story_structure but missing from bible.characters: ' +\n        missingInBible.join(', ')\n      );\n    }\n  }\n}\n\nconst _valid = errors.length === 0;\n\nreturn [{\n  json: {\n    story_id: bib?.story_id || bp?.story_id || null,\n    source_title: bibleWrap?.source_title || blueprintWrap?.source_title || null,\n    blueprint: bp || null,\n    bible: bib || null,\n    _valid,\n    validation_errors: errors\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        -1024
+      ],
+      "id": "ccb01d1c-880e-4bf6-8ec7-87b70fdec7e4",
+      "name": "Validate Artifacts"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json;\nconst context = $('Build Bible Prompt').item.json;\n\nconst rawText = raw.choices?.[0]?.message?.content || raw.text || '';\n\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nif (firstBrace === -1 || lastBrace === -1) {\n  throw new Error('Bible LLM response contains no JSON object: ' + rawText.slice(0, 300));\n}\n\nlet bible;\ntry {\n  bible = JSON.parse(rawText.slice(firstBrace, lastBrace + 1));\n} catch (e) {\n  throw new Error('Bible JSON parse failed: ' + e.message);\n}\n\nbible.story_id = context.story_id;\nbible.source_title = context.source_title;\n\nconst arrayFields = ['characters', 'relationships', 'important_entities', 'world_rules', 'continuity_constraints'];\nfor (const field of arrayFields) {\n  if (!Array.isArray(bible[field])) bible[field] = [];\n}\nconst ALLOWED_PROTECTED_LABELS = new Set([\n  'name',\n  'core personality trait',\n  'core goal',\n  'defining physical or moral trait'\n]);\n\nif (Array.isArray(bible.characters)) {\n  bible.characters.forEach(c => {\n    if (Array.isArray(c.protected_attributes)) {\n      c.protected_attributes = c.protected_attributes.filter(a => ALLOWED_PROTECTED_LABELS.has(a));\n    } else {\n      c.protected_attributes = [];\n    }\n  });\n}\n\nreturn {\n  story_id: context.story_id,\n  source_title: context.source_title,\n  bible\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        -1296
+      ],
+      "id": "782f5302-5503-4f3f-a401-30ca2977c955",
+      "name": "parser (bible)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json;\nconst context = $('Build Blueprint Prompt').item.json;\n\n// Fireworks renvoie choices[0].message.content\nconst rawText = raw.choices?.[0]?.message?.content || raw.text || '';\n\n// Extraction robuste : on prend du premier { au dernier }\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nif (firstBrace === -1 || lastBrace === -1) {\n  throw new Error('Blueprint LLM response contains no JSON object: ' + rawText.slice(0, 300));\n}\n\nlet blueprint;\ntry {\n  blueprint = JSON.parse(rawText.slice(firstBrace, lastBrace + 1));\n} catch (e) {\n  throw new Error('Blueprint JSON parse failed: ' + e.message);\n}\n\n// Sécurise les identifiants même si le LLM les a mal recopiés\nblueprint.story_id = context.story_id;\nblueprint.source_title = context.source_title;\n\n// Garantit la présence de tous les tableaux du schéma (évite les undefined en aval)\nconst arrayFields = [\n  'core_theme', 'core_moral', 'story_structure', 'key_events',\n  'location_functions', 'conflicts', 'required_elements',\n  'optional_elements', 'adaptable_elements', 'protected_elements'\n];\nfor (const field of arrayFields) {\n  if (!Array.isArray(blueprint[field])) blueprint[field] = [];\n}\nif (typeof blueprint.initial_state !== 'object' || blueprint.initial_state === null) {\n  blueprint.initial_state = { situation: '', protagonist_goal: '', initial_conflict: '' };\n}\n\nreturn {\n  story_id: context.story_id,\n  source_title: context.source_title,\n  blueprint\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        -784
+      ],
+      "id": "ea890fad-0ded-436d-8d8c-ccdeb083e9ea",
+      "name": "parser (blueprint)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2640,
+        -1024
+      ],
+      "id": "395971d9-50bc-4d76-a95e-700666596ee2",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "YOUR_FIREBASE_PROJECT_ID",
+        "collection": "story_bibles",
+        "documentId": "={{ $json.story_id }}",
+        "columns": "story_id,source_title,bible,status,created_at"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        3520,
+        -688
+      ],
+      "id": "c2a1a9c5-f20a-4a58-8e30-38ef4bec206c",
+      "name": "Create story_bibles",
+      "credentials": {
+        "googleApi": {
+          "id": "4UuQoXumhv88gop4",
+          "name": "Google Service Account account StorySystem"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json;\n\nif (!data.blueprint || typeof data.blueprint !== 'object') {\n  throw new Error('blueprint is missing or not an object at Prepare Artifacts Fields: ' + JSON.stringify(data.blueprint));\n}\nif (!data.bible || typeof data.bible !== 'object') {\n  throw new Error('bible is missing or not an object at Prepare Artifacts Fields: ' + JSON.stringify(data.bible));\n}\n\n// Firestore (node n8n) échoue à inférer le type d'un tableau vide []\n// et envoie par erreur un integerValue au lieu d'un arrayValue.\n// Fix : remplacer récursivement chaque [] par null avant l'écriture.\n// (null est correctement typé nullValue par Firestore, sans ambiguïté)\nfunction sanitizeEmptyArrays(value) {\n  if (Array.isArray(value)) {\n    if (value.length === 0) return null;\n    return value.map(sanitizeEmptyArrays);\n  }\n  if (value && typeof value === 'object') {\n    const out = {};\n    for (const key of Object.keys(value)) {\n      out[key] = sanitizeEmptyArrays(value[key]);\n    }\n    return out;\n  }\n  return value;\n}\n\nconst created_at = new Date().toISOString();\n\nreturn [{\n  json: {\n    story_id: data.story_id,\n    source_title: data.source_title,\n    blueprint: sanitizeEmptyArrays(data.blueprint),\n    bible: sanitizeEmptyArrays(data.bible),\n    status: 'artifact_ready',\n    created_at\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3296,
+        -864
+      ],
+      "id": "ae311881-ad3e-4e09-ab15-13ee6c104f24",
+      "name": "Prepare Artifacts Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3728,
+        -864
+      ],
+      "id": "4481f7e6-1827-4dff-8e72-03bfa5ee6e9c",
+      "name": "Merge1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get raw_story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: normalize": {
+      "main": [
+        [
+          {
+            "node": "parse LLM response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create normalized_stories": {
+      "main": [
+        [
+          {
+            "node": "Build Blueprint Prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Bible Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: compile blueprint": {
+      "main": [
+        [
+          {
+            "node": "parser (blueprint)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Artifacts Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create story_blueprints": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse LLM response": {
+      "main": [
+        [
+          {
+            "node": "Code (to string)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get raw_story": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "LLM: normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (to string)": {
+      "main": [
+        [
+          {
+            "node": "Create normalized_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit editorial_status": {
+      "main": [
+        [
+          {
+            "node": "Update raw_stories status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update raw_stories status": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Blueprint Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: compile blueprint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Bible Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM: compile StoryBible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: compile StoryBible": {
+      "main": [
+        [
+          {
+            "node": "parser (bible)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Artifacts": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parser (bible)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parser (blueprint)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Validate Artifacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create story_bibles": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Prepare Artifacts Fields": {
+      "main": [
+        [
+          {
+            "node": "Create story_blueprints",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create story_bibles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit editorial_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "activeVersionId": null,
+  "versionCounter": 788,
+  "triggerCount": 0,
+  "tags": []
+}
