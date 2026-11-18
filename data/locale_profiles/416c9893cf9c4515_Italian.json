@@ -1,0 +1,172 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Never rename Cinderella, Stepmother, Stepsisters, Fairy Godmother, or Prince.",
+      "All magic transformations must end at midnight.",
+      "The glass slipper fits only Cinderella.",
+      "Cinderella must remain kind and forgive her stepfamily.",
+      "The Prince must find Cinderella through the glass slipper."
+    ],
+    "forbidden_adaptations": [
+      "Do not replace the glass slipper with another object.",
+      "Do not remove the midnight deadline.",
+      "Do not make the stepfamily forgiven without Cinderella's act of forgiveness.",
+      "Do not set the story in a specific modern Italian city or era.",
+      "Do not use regional stereotypes or dialect caricatures."
+    ],
+    "language_style": {
+      "restrictions": [
+        "No complex idioms or dialect beyond gentle flavor.",
+        "Keep sentences short and rhythmic for read-aloud."
+      ],
+      "local_expressions": [
+        "Ciao and simple greetings for young readers.",
+        "Exclamations like 'Che meraviglia!' to convey wonder."
+      ],
+      "register": "Warm, simple fairy-tale narration for young children.",
+      "language": "Italian"
+    },
+    "story_id": "cinderella",
+    "cultural_elements": {
+      "food": [
+        "A feast of regional sweets and cakes at the ball.",
+        "Simple bread and soup for Cinderella, showing her low status."
+      ],
+      "traditions": [
+        "The royal ball announced by a town crier in the piazza.",
+        "Bells ringing to mark the celebration."
+      ],
+      "daily_life": [
+        "Cinderella sweeps the courtyard and tends the hearth from dawn to night."
+      ],
+      "music": [
+        "Lively court dances with strings at the ball."
+      ],
+      "clothing": [
+        "Cinderella's ball gown in shimmering azure like a fairy-tale princess.",
+        "The Stepsisters wear elaborate ribbons and lace they boast about."
+      ],
+      "objects": [
+        "The glass slipper remains the key object of recognition.",
+        "A carriage transformed from a bright orange pumpkin.",
+        "The Fairy Godmother's sparkling magic wand."
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "The kingdom celebrates the ball as a festive occasion with bells and decorations."
+      ],
+      "forms_of_address": [
+        "Children use 'Signora' for the Stepmother and 'Sua Altezza' for the Prince."
+      ],
+      "family_dynamics": [
+        "The Stepmother openly favors her own daughters over Cinderella.",
+        "Family life centers on the shared kitchen and courtyard."
+      ],
+      "social_interactions": [
+        "Neighbors gather in the piazza to share news of the royal ball.",
+        "Formal greetings with hand-kissing at the palace ball."
+      ]
+    },
+    "adaptation_principles": [
+      "Keep the fairy-tale tone timeless rather than tied to one Italian era.",
+      "Use warm, familiar Italian domestic imagery children recognize.",
+      "Ensure all adaptations support the moral of kindness and forgiveness.",
+      "Avoid regional stereotypes or caricatures.",
+      "Keep vocabulary simple and age-appropriate for ages 4-8."
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Family home and hearth",
+        "narrative_function": "Shows Cinderella's hardship and low status.",
+        "element_type": "location",
+        "target_representation": "A rustic stone farmhouse with a large hearth kitchen where Cinderella works.",
+        "adaptation_reason": "The hearth is a familiar Italian domestic heart, preserving the labor-and-lowness function."
+      },
+      {
+        "story_element": "Royal palace ballroom",
+        "narrative_function": "Site of transformation, joy, and the romantic meeting.",
+        "element_type": "location",
+        "target_representation": "An elegant palazzo with frescoed halls, chandeliers, and a marble staircase.",
+        "adaptation_reason": "Italian palazzo grandeur keeps the high-status, magical atmosphere intact."
+      },
+      {
+        "story_element": "Royal ball",
+        "narrative_function": "High-status event where the Prince seeks a bride.",
+        "element_type": "event",
+        "target_representation": "A grand ball announced by a town crier in the piazza, with bells and court dances.",
+        "adaptation_reason": "Piazza announcements and bells are recognizable Italian celebration markers preserving the event's prestige."
+      },
+      {
+        "story_element": "Ball feast",
+        "narrative_function": "Signals luxury and celebration at the palace.",
+        "element_type": "food",
+        "target_representation": "Regional sweets, cakes, and festive treats on ornate tables.",
+        "adaptation_reason": "Festive Italian sweets convey celebration without stereotyping."
+      },
+      {
+        "story_element": "Clothing and fashion",
+        "narrative_function": "Marks status contrast between Cinderella and her stepfamily.",
+        "element_type": "costume",
+        "target_representation": "Cinderella in a simple patched dress; the Stepsisters in ribbons and lace; her gown in shimmering azure.",
+        "adaptation_reason": "The contrast in finery preserves the status hierarchy and transformation moment."
+      },
+      {
+        "story_element": "Pumpkin carriage",
+        "narrative_function": "Magical transport to the ball that reverts at midnight.",
+        "element_type": "object",
+        "target_representation": "A carriage transformed from a bright orange pumpkin, drawn by transformed horses.",
+        "adaptation_reason": "Kept as-is because it is iconic and functions perfectly in any Italian setting."
+      },
+      {
+        "story_element": "Animal helpers",
+        "narrative_function": "Support Cinderella and become footmen and horses.",
+        "element_type": "optional characters",
+        "target_representation": "Friendly mice and a gentle dog living in the farmhouse kitchen.",
+        "adaptation_reason": "Farmhouse animals fit the rural Italian setting while preserving the helper role."
+      },
+      {
+        "story_element": "Forms of address",
+        "narrative_function": "Convey social hierarchy for young readers.",
+        "element_type": "language",
+        "target_representation": "'Signora' for the Stepmother and 'Sua Altezza' for the Prince.",
+        "adaptation_reason": "Simple Italian honorifics make status differences clear to children."
+      }
+    ],
+    "target_culture": {
+      "country": "Italy",
+      "region": "General Italian (fairy-tale setting)",
+      "language": "Italian"
+    },
+    "setting": {
+      "public_spaces": [
+        "The town piazza with a fountain where the invitation is announced."
+      ],
+      "geography": [
+        "An Italian countryside region with a royal city nearby."
+      ],
+      "climate": [
+        "Mild Mediterranean weather with golden evening light for the ball."
+      ],
+      "environment": [
+        "A sunlit countryside with cypress trees and olive groves.",
+        "A grand piazza near the palace where news of the ball spreads.",
+        "Rolling hills visible from the family home."
+      ],
+      "domestic_spaces": [
+        "The hearth kitchen where Cinderella sleeps and works by the fire."
+      ],
+      "architecture": [
+        "A rustic stone farmhouse with terracotta roof tiles for the family home.",
+        "A warm kitchen with a large hearth where Cinderella works.",
+        "An elegant palazzo with frescoed ballrooms and marble staircases."
+      ]
+    }
+  },
+  "created_at": null,
+  "schema_valid": true,
+  "story_id": "416c9893cf9c4515",
+  "status": "done",
+  "target_culture": "Italian",
+  "semantic_valid": true
+}

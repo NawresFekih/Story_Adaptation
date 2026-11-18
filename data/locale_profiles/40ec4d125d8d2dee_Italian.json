@@ -1,0 +1,189 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Keep the names Aurora, Flora, Fauna, and Merryweather, Maleficent, and Prince Phillip exactly as written.",
+      "The curse must be triggered by a spinning wheel spindle when Aurora is fifteen.",
+      "Prince Phillip must defeat Maleficent in her dragon form.",
+      "True love's kiss must awaken Aurora.",
+      "The three fairies must remain Aurora's guardians throughout."
+    ],
+    "forbidden_adaptations": [
+      "Do not rename or translate any character name, including Flora, Fauna, and Merryweather.",
+      "Do not change the curse mechanism away from the spindle prick.",
+      "Do not remove the fairies' guardianship or the dragon battle.",
+      "Do not alter the core moral of love, kindness, and courage overcoming darkness.",
+      "Do not use stereotyped Italian caricatures in speech or behavior."
+    ],
+    "language_style": {
+      "restrictions": [
+        "Keep names Aurora, Flora, Fauna, Merryweather, Maleficent, and Prince Phillip exactly as written.",
+        "No dialects too regional for young readers to follow.",
+        "No stereotypes or caricatured Italian mannerisms."
+      ],
+      "local_expressions": [
+        "'Ciao' and 'benvenuto' in village greetings.",
+        "'Che bello!' as an expression of wonder.",
+        "'Buonanotte' as a recurring lullaby phrase."
+      ],
+      "register": "Warm, lyrical fairy-tale register with simple sentences for ages 4-8.",
+      "language": "Italian"
+    },
+    "story_id": "sleeping_beauty",
+    "cultural_elements": {
+      "food": [
+        "The christening feast features roast meats, fresh bread, and honeyed sweets.",
+        "Aurora and the fairies share simple rural meals of polenta, cheese, and figs.",
+        "A birthday torta with candied fruit crowns the celebration."
+      ],
+      "traditions": [
+        "The birth celebration includes village dancing and ringing bells.",
+        "The fairies celebrate Aurora's birthday each year with a small cake and wildflowers.",
+        "A harvest festival marks the seasons during Aurora's hidden years."
+      ],
+      "daily_life": [
+        "Aurora gathers berries and tends a small garden with the fairies.",
+        "The fairies bake bread and mend clothes, doing chores by hand without magic.",
+        "Villagers work the olive groves and vineyards."
+      ],
+      "music": [
+        "Folk dancers with tambourines and lutes perform at the christening.",
+        "Aurora sings a gentle melody to her woodland animal friends.",
+        "The fairies hum lullabies from the countryside."
+      ],
+      "clothing": [
+        "Aurora wears a simple linen peasant dress as Briar Rose and a Renaissance-style gown at court.",
+        "The fairies wear colorful shawls and aprons over their dresses.",
+        "Maleficent keeps her dramatic dark robes and horns unchanged."
+      ],
+      "objects": [
+        "The spinning wheel is an old wooden Italian household wheel kept in a castle tower room.",
+        "A hand-carved cradle holds baby Aurora at the christening.",
+        "Wildflower bouquets and herbs decorate the cottage."
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "The kingdom celebrates with music, dancing, and long festive tables.",
+        "Villagers gather for church bells, market days, and seasonal fairs."
+      ],
+      "forms_of_address": [
+        "Children address elders as 'zia' or 'nonna' as terms of affection.",
+        "Courtiers address the royal couple with formal titles."
+      ],
+      "family_dynamics": [
+        "The king and queen long for a child and celebrate Aurora's birth with the whole court.",
+        "The three fairies, Flora, Fauna, and Merryweather, become a warm surrogate family raising Aurora as Briar Rose.",
+        "Royal duty and parental love drive the decision to hide Aurora."
+      ],
+      "social_interactions": [
+        "Villagers greet each other warmly in the piazza with festivals and shared meals.",
+        "Courtiers show formal respect to the king and queen.",
+        "Neighbors help the fairies with the harvest, unaware of their secret."
+      ]
+    },
+    "adaptation_principles": [
+      "Keep all character names unchanged while localizing their surroundings.",
+      "Ground the setting in Italian Renaissance-style hilltop castles and countryside.",
+      "Use Italian folk traditions to enrich celebration and daily-life scenes.",
+      "Keep the moral and magical rules identical to the source.",
+      "Avoid stereotypes; use broadly Italian cultural details appropriate for ages 4-8."
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Castle",
+        "narrative_function": "Royal seat where the christening and curse unfold.",
+        "element_type": "location",
+        "target_representation": "A Renaissance-style hilltop castle with terracotta roofs, frescoed halls, and a bell tower.",
+        "adaptation_reason": "Matches the story's courtly era with an authentically Italian architectural feel."
+      },
+      {
+        "story_element": "Forest sanctuary",
+        "narrative_function": "Safe hiding place for Aurora for sixteen years.",
+        "element_type": "location",
+        "target_representation": "A rustic stone cottage hidden in a chestnut and cypress forest in the Tuscan hills.",
+        "adaptation_reason": "Preserves secrecy and rustic safety while fitting the Italian countryside."
+      },
+      {
+        "story_element": "Thorny forest",
+        "narrative_function": "Dangerous barrier Phillip must cross to reach the castle.",
+        "element_type": "location",
+        "target_representation": "A dark woodland of wild blackberry brambles and thorny wild roses surrounding the hilltop castle.",
+        "adaptation_reason": "Keeps the testing barrier using plants native to the Italian landscape."
+      },
+      {
+        "story_element": "Spinning Wheel",
+        "narrative_function": "Catalyst that triggers the curse on Aurora's fifteenth year.",
+        "element_type": "object",
+        "target_representation": "An old wooden household spinning wheel kept in a castle tower room, a relic of the household's weaving past.",
+        "adaptation_reason": "Preserves the required spindle trigger while fitting a period Italian household."
+      },
+      {
+        "story_element": "Birth celebration",
+        "narrative_function": "Establishes joy and community before the curse.",
+        "element_type": "event",
+        "target_representation": "A christening feast in the great hall with a village festival in the stone piazza, folk dancing, and a candied-fruit torta.",
+        "adaptation_reason": "Retains the communal joy using Italian festive traditions children recognize."
+      },
+      {
+        "story_element": "Fairies' daily life",
+        "narrative_function": "Shows the fairies raising Aurora humbly without magic.",
+        "element_type": "secondary event",
+        "target_representation": "Flora, Fauna, and Merryweather bake bread, tend a garden, and mend clothes in the cottage kitchen.",
+        "adaptation_reason": "Preserves the humility and love of the hiding years in a rural Italian idiom."
+      },
+      {
+        "story_element": "Dragon",
+        "narrative_function": "Maleficent's final form in the battle with Prince Phillip.",
+        "element_type": "creature",
+        "target_representation": "Unchanged dragon manifestation, battled by Phillip at the thorn-surrounded castle gates.",
+        "adaptation_reason": "The dragon is a protected plot element requiring no cultural change."
+      },
+      {
+        "story_element": "True Love's Kiss",
+        "narrative_function": "Resolution that awakens Aurora.",
+        "element_type": "concept",
+        "target_representation": "Unchanged as the awakening kiss, framed within the story's romantic fairy-tale logic.",
+        "adaptation_reason": "It is a protected world rule and needs no localization."
+      }
+    ],
+    "target_culture": {
+      "country": "Italy",
+      "region": "Tuscany and northern Italian kingdoms",
+      "language": "Italian"
+    },
+    "setting": {
+      "public_spaces": [
+        "A stone piazza with a fountain hosts the birthday celebration.",
+        "The castle great hall hosts the christening feast."
+      ],
+      "geography": [
+        "The kingdom sits among vineyards, wheat fields, and wooded hills.",
+        "A river valley separates the castle from the hidden sanctuary."
+      ],
+      "climate": [
+        "Warm Mediterranean summers and mild rainy winters.",
+        "Golden autumn light marks the passage of Aurora's hidden years."
+      ],
+      "environment": [
+        "Rolling Tuscan hills with cypress trees and olive groves surround the kingdom.",
+        "A hidden stone cottage in a chestnut forest serves as the sanctuary.",
+        "A dark, bramble-choked woodland marks the dangerous thorny forest."
+      ],
+      "domestic_spaces": [
+        "The cottage kitchen with a hearth where the fairies bake and sew.",
+        "A spinning room in the castle holds the fateful wheel."
+      ],
+      "architecture": [
+        "A hilltop castle with terracotta roofs, frescoed halls, and a bell tower.",
+        "The fairies' cottage is a rustic stone farmhouse with a red-tiled roof.",
+        "Village houses with shuttered windows line cobblestone streets."
+      ]
+    }
+  },
+  "created_at": null,
+  "schema_valid": true,
+  "story_id": "40ec4d125d8d2dee",
+  "status": "done",
+  "target_culture": "Italian",
+  "semantic_valid": true
+}

@@ -1,0 +1,280 @@
+{
+  "created_at": "2026-08-28T10:48:02.882000+00:00",
+  "story_id": "416c9893cf9c4515",
+  "blueprint": {
+    "initial_state": {
+      "protagonist_goal": "To experience joy, freedom, and love beyond her hardship.",
+      "situation": "Cinderella lives with her cruel stepmother and stepsisters, who force her to work.",
+      "initial_conflict": "She is mistreated and prevented from attending the royal ball."
+    },
+    "story_structure": [
+      {
+        "characters_involved": [
+          "char_001",
+          "char_002",
+          "char_003"
+        ],
+        "key_events": [
+          "evt_001"
+        ],
+        "summary": "Cinderella is mistreated by her stepmother and stepsisters and forced to work.",
+        "narrative_function": "Establish protagonist, oppression, and kind nature.",
+        "required_outcome": "Cinderella's kind nature and oppression are established.",
+        "sequence": 1,
+        "phase": "setup"
+      },
+      {
+        "characters_involved": [
+          "char_001",
+          "char_002",
+          "char_003"
+        ],
+        "key_events": [
+          "evt_002"
+        ],
+        "summary": "An invitation to the royal ball arrives, but the stepfamily prevents Cinderella from attending.",
+        "narrative_function": "Introduce the opportunity and the barrier.",
+        "required_outcome": "Cinderella is denied the chance to attend the ball.",
+        "sequence": 2,
+        "phase": "inciting_incident"
+      },
+      {
+        "characters_involved": [
+          "char_001",
+          "char_004"
+        ],
+        "key_events": [
+          "evt_003"
+        ],
+        "summary": "Fairy Godmother magically transforms Cinderella and gives her glass slippers, warning her to return by midnight.",
+        "narrative_function": "Provide magical help and a condition.",
+        "required_outcome": "Cinderella receives magical help and a midnight deadline.",
+        "sequence": 3,
+        "phase": "rising_action"
+      },
+      {
+        "characters_involved": [
+          "char_001",
+          "char_005"
+        ],
+        "key_events": [
+          "evt_004"
+        ],
+        "summary": "Cinderella attends the ball and dances with the Prince.",
+        "narrative_function": "Create romantic connection and joy.",
+        "required_outcome": "The Prince is charmed by Cinderella.",
+        "sequence": 4,
+        "phase": "rising_action"
+      },
+      {
+        "characters_involved": [
+          "char_001",
+          "char_005"
+        ],
+        "key_events": [
+          "evt_005"
+        ],
+        "summary": "At midnight, Cinderella flees and loses one glass slipper.",
+        "narrative_function": "Trigger the crisis and leave the key clue.",
+        "required_outcome": "The glass slipper becomes the key clue to find her.",
+        "sequence": 5,
+        "phase": "climax"
+      },
+      {
+        "characters_involved": [
+          "char_005"
+        ],
+        "key_events": [
+          "evt_006"
+        ],
+        "summary": "The Prince searches the kingdom with the glass slipper.",
+        "narrative_function": "Move toward recognition through testing.",
+        "required_outcome": "The search narrows to Cinderella.",
+        "sequence": 6,
+        "phase": "falling_action"
+      },
+      {
+        "characters_involved": [
+          "char_001",
+          "char_005",
+          "char_002",
+          "char_003"
+        ],
+        "key_events": [
+          "evt_007",
+          "evt_008"
+        ],
+        "summary": "The slipper fits Cinderella, she forgives her stepfamily, and she lives happily with the Prince.",
+        "narrative_function": "Resolve identity, forgiveness, and love.",
+        "required_outcome": "Cinderella is recognized, forgives, and finds happiness.",
+        "sequence": 7,
+        "phase": "resolution"
+      }
+    ],
+    "source_title": "Cinderella Story",
+    "adaptable_elements": [
+      "Setting and time period",
+      "Clothing and fashion",
+      "Food and feast details",
+      "Palace architecture and decor",
+      "Mode of transport",
+      "Animal helper species",
+      "Cultural celebration type",
+      "Names of minor background characters"
+    ],
+    "story_type": "fairy_tale",
+    "required_elements": [
+      "Kind-hearted protagonist mistreated by stepfamily",
+      "Royal ball or equivalent celebratory gathering",
+      "Magical helper",
+      "Midnight deadline",
+      "Lost identifying object (glass slipper)",
+      "Search and fitting of the object",
+      "Recognition and reunion with love interest",
+      "Forgiveness of stepfamily",
+      "Happy ending"
+    ],
+    "protected_elements": [
+      "Character name: Cinderella",
+      "Character name: Stepmother",
+      "Character name: Stepsisters",
+      "Character name: Fairy Godmother",
+      "Character name: Prince",
+      "Glass slipper",
+      "Midnight deadline",
+      "Moral lesson: kindness, a loving heart, and forgiveness can help overcome hardship and lead to happiness",
+      "Core relationship: Cinderella and her stepfamily",
+      "Core relationship: Cinderella and Fairy Godmother",
+      "Core relationship: Cinderella and Prince",
+      "Ending: Prince finds Cinderella and they live happily ever after; Cinderella forgives her stepfamily"
+    ],
+    "story_id": "416c9893cf9c4515",
+    "conflicts": [
+      {
+        "description": "Cinderella is mistreated and blocked by her stepmother and stepsisters.",
+        "resolution": "Fairy Godmother helps her, and the Prince finds her through the slipper.",
+        "type": "person vs person"
+      },
+      {
+        "description": "The midnight deadline forces Cinderella to flee the ball.",
+        "resolution": "The lost glass slipper remains as the clue to find her.",
+        "type": "person vs circumstance"
+      },
+      {
+        "description": "Cinderella's low status prevents her from attending the royal ball.",
+        "resolution": "Magical transformation and the Prince's search overcome class barriers.",
+        "type": "person vs society"
+      },
+      {
+        "description": "Cinderella must choose whether to forgive her stepfamily.",
+        "resolution": "She forgives them and finds happiness.",
+        "type": "person vs self"
+      }
+    ],
+    "optional_elements": [
+      "Animal helpers",
+      "Pumpkin carriage",
+      "Specific chores",
+      "Specific ball dances or music",
+      "Minor servants or messengers",
+      "Stepfamily's specific insults"
+    ],
+    "target_audience": "children ages 4-8",
+    "key_events": [
+      {
+        "description": "Cinderella is mistreated by her stepfamily and forced to work.",
+        "narrative_function": "Establish oppression and protagonist's kindness.",
+        "event_id": "evt_001",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "The royal ball invitation arrives, but the stepfamily prevents Cinderella from attending.",
+        "narrative_function": "Create the central barrier and desire.",
+        "event_id": "evt_002",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "Fairy Godmother magically transforms Cinderella and gives her glass slippers with a midnight warning.",
+        "narrative_function": "Provide magical help and the key condition.",
+        "event_id": "evt_003",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "Cinderella attends the ball and dances with the Prince.",
+        "narrative_function": "Create the romantic connection.",
+        "event_id": "evt_004",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "Cinderella flees at midnight and loses one glass slipper.",
+        "narrative_function": "Leave the key clue and create separation.",
+        "event_id": "evt_005",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "The Prince searches the kingdom with the glass slipper.",
+        "narrative_function": "Move toward recognition and test identity.",
+        "event_id": "evt_006",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "The glass slipper fits Cinderella, and the Prince recognizes her.",
+        "narrative_function": "Resolve identity and reunite the couple.",
+        "event_id": "evt_007",
+        "importance": "critical",
+        "is_protected": true
+      },
+      {
+        "description": "Cinderella forgives her stepfamily and lives happily with the Prince.",
+        "narrative_function": "Deliver the moral and happy ending.",
+        "event_id": "evt_008",
+        "importance": "critical",
+        "is_protected": true
+      }
+    ],
+    "location_functions": [
+      {
+        "original_location": "Cinderella's family home",
+        "adaptability": "flexible",
+        "narrative_function": "Place of hardship and oppression",
+        "location_id": "loc_001"
+      },
+      {
+        "original_location": "Cinderella's kitchen/hearth",
+        "adaptability": "flexible",
+        "narrative_function": "Place of labor and low status",
+        "location_id": "loc_002"
+      },
+      {
+        "original_location": "royal palace ballroom",
+        "adaptability": "flexible",
+        "narrative_function": "Place of transformation, joy, and romantic meeting",
+        "location_id": "loc_003"
+      },
+      {
+        "original_location": "kingdom search route",
+        "adaptability": "fully_adaptable",
+        "narrative_function": "Place of testing and recognition",
+        "location_id": "loc_004"
+      }
+    ],
+    "core_moral": [
+      "Kindness, a loving heart, and forgiveness can help overcome hardship and lead to happiness."
+    ],
+    "core_theme": [
+      "kindness",
+      "forgiveness",
+      "love",
+      "perseverance"
+    ],
+    "narrative_goal": "Cinderella overcomes mistreatment and finds love and happiness through kindness and magical help."
+  },
+  "source_title": "Cinderella Story",
+  "status": "artifact_ready"
+}

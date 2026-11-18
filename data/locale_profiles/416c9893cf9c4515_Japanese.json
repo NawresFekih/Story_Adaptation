@@ -1,0 +1,181 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Keep the names Cinderella, Stepmother, Stepsisters, Fairy Godmother, and Prince exactly as given, untranslated.",
+      "Cinderella must remain kind and forgiving despite mistreatment by the Stepmother and Stepsisters.",
+      "The Fairy Godmother must provide the transformation and the midnight warning.",
+      "The glass slipper must fit only Cinderella and be used by the Prince to find her.",
+      "All magic must end at midnight, causing Cinderella to flee and lose one slipper.",
+      "The story must end with Cinderella forgiving her stepfamily and living happily with the Prince."
+    ],
+    "forbidden_adaptations": [
+      "Do not rename Cinderella, Stepmother, Stepsisters, Fairy Godmother, or Prince with Japanese names.",
+      "Do not replace the glass slipper with a different object like a sandal or fan, since the slipper test is protected.",
+      "Do not remove the midnight deadline or let the magic persist past it.",
+      "Do not make Cinderella resentful or vengeful toward the Stepmother and Stepsisters.",
+      "Do not remove the Fairy Godmother or replace her magical help with purely human assistance."
+    ],
+    "language_style": {
+      "restrictions": [
+        "No complex kanji or adult themes.",
+        "No harsh insults; the Stepsisters' teasing stays mild and age-appropriate.",
+        "Keep the Fairy Godmother's warning about midnight simple and memorable."
+      ],
+      "local_expressions": [
+        "Kimochi ga ii (feels pleasant) for magical moments.",
+        "Kirei! (How beautiful!) at the transformation.",
+        "Hayaku! (Quickly!) during the midnight escape."
+      ],
+      "register": "Polite, gentle storytelling register (desu/masu style) with soft onomatopoeia.",
+      "language": "Japanese with simple, warm narration for young children."
+    },
+    "story_id": "cinderella_fairy_tale",
+    "cultural_elements": {
+      "food": [
+        "Festive foods like sekihan, mochi, and elegant wag sweets appear at the ball feast.",
+        "The stepfamily enjoys fine meals while Cinderella eats simply after cooking for them."
+      ],
+      "traditions": [
+        "The royal ball is framed as a grand palace banquet and celebration.",
+        "Lantern lighting and seasonal decorations mark the festive occasion."
+      ],
+      "daily_life": [
+        "Cinderella sweeps, cooks, and tends the irori hearth from morning to night.",
+        "The stepfamily prepares elaborate attire and gifts for the ball."
+      ],
+      "music": [
+        "Courtly gagaku-style instruments and gentle koto music accompany the dancing."
+      ],
+      "clothing": [
+        "Cinderella's ball gown becomes a shimmering kimono-style gown with an obi sash.",
+        "The Stepsisters wear elaborate formal kimono with ornate hair accessories.",
+        "The Prince wears formal court attire suited to a palace ball."
+      ],
+      "objects": [
+        "The glass slipper remains a glass slipper, unmistakably unique and delicate.",
+        "The pumpkin carriage becomes a magically transformed palanquin (kago) drawn by white mice-turned-horses.",
+        "The Fairy Godmother's magic wand sparkles with starlight."
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "Neighbors share news of the royal ball invitation with excitement.",
+        "The whole town follows the Prince's slipper search."
+      ],
+      "forms_of_address": [
+        "Children's story conventions use polite forms; the Stepmother speaks curtly to Cinderella to signal unkindness."
+      ],
+      "family_dynamics": [
+        "The Stepmother favors her daughters and assigns Cinderella all the housework.",
+        "The Stepsisters mock Cinderella while dressing up for the ball.",
+        "Cinderella remains kind and dutiful despite the mistreatment."
+      ],
+      "social_interactions": [
+        "Formal bows and polite greetings mark status differences between the household and palace guests.",
+        "Ball guests exchange courteous compliments in refined speech."
+      ]
+    },
+    "adaptation_principles": [
+      "Keep all character names exactly as given: Cinderella, Stepmother, Stepsisters, Fairy Godmother, Prince.",
+      "Localize settings, clothing, food, and celebration details while preserving each element's narrative function.",
+      "Use gentle, age-appropriate language suitable for children ages 4-8.",
+      "Avoid stereotypes; base cultural details on authentic, widely recognized Japanese customs.",
+      "Ensure the midnight deadline and glass slipper test remain clear and dramatic."
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Cinderella's family home and kitchen/hearth",
+        "narrative_function": "Place of hardship and labor showing Cinderella's low status.",
+        "element_type": "location",
+        "target_representation": "A wooden Japanese house with a tatami kitchen and irori hearth where Cinderella does chores.",
+        "adaptation_reason": "The irori hearth preserves the visual of humble labor while grounding the home in Japanese domestic life."
+      },
+      {
+        "story_element": "Royal palace ballroom",
+        "narrative_function": "High-status setting of transformation, joy, and the meeting with the Prince.",
+        "element_type": "location",
+        "target_representation": "A grand castle ballroom with shoji lanterns, polished floors, and seasonal decorations.",
+        "adaptation_reason": "Japanese palace aesthetics keep the grandeur and formality that make the ball feel exclusive."
+      },
+      {
+        "story_element": "Pumpkin carriage",
+        "narrative_function": "Magical transport to the ball that reverts at midnight.",
+        "element_type": "object",
+        "target_representation": "A transformed ornate palanquin (kago) with mice-turned-horses and a coachman from a dog.",
+        "adaptation_reason": "A palanquin is a historically plausible Japanese noble transport, preserving the magical-reversal function."
+      },
+      {
+        "story_element": "Cinderella's ball gown",
+        "narrative_function": "Marks her magical transformation into a ball-worthy guest.",
+        "element_type": "clothing",
+        "target_representation": "A shimmering kimono-style gown with a beautiful obi and glass slippers.",
+        "adaptation_reason": "Kimono-style formal wear signals elegance and high status in the target culture while keeping the glass slippers intact."
+      },
+      {
+        "story_element": "Ball feast and celebration",
+        "narrative_function": "Signals the luxury and festivity of the royal event.",
+        "element_type": "food/tradition",
+        "target_representation": "Palace banquet with sekihan, mochi, and elegant wagashi sweets.",
+        "adaptation_reason": "Festive Japanese foods convey celebration and refinement without altering the event's purpose."
+      },
+      {
+        "story_element": "Ball music and dancing",
+        "narrative_function": "Creates the romantic atmosphere of the dance with the Prince.",
+        "element_type": "music",
+        "target_representation": "Gentle koto and gagaku-style court music with graceful, flowing dance.",
+        "adaptation_reason": "Court music matches the palace setting and preserves the elegance of the couple's dance."
+      },
+      {
+        "story_element": "Stepfamily's status display",
+        "narrative_function": "Shows the Stepmother's favoritism and the Stepsisters' vanity.",
+        "element_type": "social detail",
+        "target_representation": "The Stepmother and Stepsisters wear elaborate formal kimono and fine hair ornaments while Cinderella works.",
+        "adaptation_reason": "Visible finery contrasted with Cinderella's plain clothes communicates the oppression clearly for young readers."
+      },
+      {
+        "story_element": "Midnight transformation end",
+        "narrative_function": "Creates urgency and the lost slipper clue.",
+        "element_type": "world rule",
+        "target_representation": "Temple bell-like chimes and a moonlit sky mark the stroke of midnight when the magic ends.",
+        "adaptation_reason": "Bell imagery fits the Japanese soundscape and keeps the deadline dramatic and easy for children to grasp."
+      }
+    ],
+    "target_culture": {
+      "country": "Japan",
+      "region": "Japan (general)",
+      "language": "Japanese (children's polite register)"
+    },
+    "setting": {
+      "public_spaces": [
+        "The palace ballroom and its lantern-lit entrance courtyard.",
+        "Town streets where the slipper search takes place."
+      ],
+      "geography": [
+        "A castle town set among hills, with the family home on its quieter edge."
+      ],
+      "climate": [
+        "Four distinct seasons, with the ball held on a crisp autumn evening."
+      ],
+      "environment": [
+        "A traditional Japanese neighborhood with a family home and a distant castle-style palace.",
+        "Seasonal imagery of cherry blossoms and autumn moonlit nights.",
+        "A countryside town connected to the palace by lantern-lit roads."
+      ],
+      "domestic_spaces": [
+        "The kitchen and hearth where Cinderella works while the Stepmother and Stepsisters prepare for the ball.",
+        "A small room where Cinderella sleeps near the household chores."
+      ],
+      "architecture": [
+        "The family home is a wooden house with a tatami kitchen and irori hearth.",
+        "The palace is a grand castle with shoji-lit ballrooms and polished wooden floors.",
+        "Gardens with stone lanterns and koi ponds surround both homes."
+      ]
+    }
+  },
+  "created_at": null,
+  "schema_valid": true,
+  "story_id": "416c9893cf9c4515",
+  "status": "done",
+  "target_culture": "Japanese",
+  "semantic_valid": true
+}

@@ -1,0 +1,185 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Keep the names Aurora, Flora, Fauna, and Merryweather, Maleficent, and Prince Phillip exactly as given.",
+      "The curse must be triggered by a spinning wheel spindle when Aurora is fifteen.",
+      "Prince Phillip must defeat Maleficent in her dragon form.",
+      "True love's kiss must awaken Aurora.",
+      "Flora, Fauna, and Merryweather must remain present as Aurora's guardians."
+    ],
+    "forbidden_adaptations": [
+      "Do not rename, translate, or replace any protected character name.",
+      "Do not change the curse trigger away from the spinning wheel spindle.",
+      "Do not alter the core moral of love, kindness, and courage overcoming darkness.",
+      "Do not remove the fairies' guardianship of Aurora.",
+      "Do not use stereotypes or unsupported generalizations about Tunisian culture."
+    ],
+    "language_style": {
+      "restrictions": [
+        "Keep vocabulary simple and age-appropriate.",
+        "Avoid dialect too dense for young readers.",
+        "No frightening language beyond gentle story tension."
+      ],
+      "local_expressions": [
+        "'Yek ya benti' as a gentle call to a child.",
+        "'Bsahtek' said when sharing food or joy.",
+        "'Inshallah' used when speaking of hopes and blessings."
+      ],
+      "register": "Warm, gentle storytelling register for young children",
+      "language": "Tunisian Arabic (Derja), simple and melodic"
+    },
+    "story_id": "sleeping_beauty",
+    "cultural_elements": {
+      "food": [
+        "Couscous, brik, and dates at the celebration feast.",
+        "Mint tea and almond sweets like baklawa for guests.",
+        "Fresh figs and pomegranates from the orchards."
+      ],
+      "traditions": [
+        "A birth celebration with music, henna, and shared sweets.",
+        "Blessings spoken over a newborn by honored guests.",
+        "Storytelling evenings under the stars."
+      ],
+      "daily_life": [
+        "Tending olive groves and baking bread in a shared oven.",
+        "Fetching water at the village fountain each morning."
+      ],
+      "music": [
+        "Oud and darbuka melodies at celebrations.",
+        "Soft lullabies sung in the sanctuary."
+      ],
+      "clothing": [
+        "Aurora wears an embroidered traditional dress with silver jewelry.",
+        "Flora, Fauna, and Merryweather wear colorful scarves and simple village robes.",
+        "Prince Phillip wears a ceremonial vest and riding boots."
+      ],
+      "objects": [
+        "A traditional wooden spinning wheel with carved patterns as the cursed object.",
+        "Brass lanterns and woven carpets in the sanctuary.",
+        "A hand-carved cradle for baby Aurora."
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "Village gatherings feature music, mint tea, and storytelling.",
+        "Crafts like weaving and pottery are shared across generations."
+      ],
+      "forms_of_address": [
+        "Elders are addressed respectfully with titles like 'Si' and 'Lalla'.",
+        "Children are called by affectionate diminutives."
+      ],
+      "family_dynamics": [
+        "Aurora is raised by Flora, Fauna, and Merryweather as a loving adoptive family.",
+        "Extended family and neighbors join birth celebrations with shared meals."
+      ],
+      "social_interactions": [
+        "Neighbors greet each other warmly and share food during festivals.",
+        "The community protects children collectively."
+      ]
+    },
+    "adaptation_principles": [
+      "Keep all character names exactly as given, including Flora, Fauna, and Merryweather.",
+      "Ground the setting in Tunisian landscapes without stereotyping.",
+      "Adapt objects and spaces while preserving their narrative function.",
+      "Use warm, simple storytelling suited to children aged 4-8.",
+      "Reflect Tunisian hospitality and family life naturally."
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Forest sanctuary",
+        "narrative_function": "A hidden safe place where Aurora grows up unseen.",
+        "element_type": "location",
+        "target_representation": "A remote palm oasis with a whitewashed farmhouse, far from the palace town.",
+        "adaptation_reason": "An oasis preserves secrecy and safety while fitting Tunisian geography."
+      },
+      {
+        "story_element": "Thorny forest",
+        "narrative_function": "A dangerous barrier testing the hero's courage.",
+        "element_type": "location",
+        "target_representation": "A dense wall of cactus and thorny bougainvillea surrounding the sleeping palace.",
+        "adaptation_reason": "Cactus and bougainvillea are local, formidable plants that keep the barrier's function."
+      },
+      {
+        "story_element": "Spinning wheel",
+        "narrative_function": "The catalyst that triggers the curse on Aurora's fifteenth year.",
+        "element_type": "object",
+        "target_representation": "A traditional carved wooden spinning wheel kept hidden in a palace tower.",
+        "adaptation_reason": "Handcraft tools like spinning wheels fit Tunisian heritage while preserving the required trigger."
+      },
+      {
+        "story_element": "Castle",
+        "narrative_function": "The seat of the kingdom and site of the final battle.",
+        "element_type": "location",
+        "target_representation": "A whitewashed palace with arched courtyards, zellige tiles, and a high tower.",
+        "adaptation_reason": "Mediterranean palace architecture keeps royal grandeur in a Tunisian idiom."
+      },
+      {
+        "story_element": "Birth celebration",
+        "narrative_function": "Introduces Aurora and the community's joy before the curse.",
+        "element_type": "event",
+        "target_representation": "A feast with couscous, mint tea, oud music, and spoken blessings for the newborn.",
+        "adaptation_reason": "Tunisian birth festivities naturally carry blessing and celebration functions."
+      },
+      {
+        "story_element": "Fairies' blessings",
+        "narrative_function": "Gifts of virtue granted to protect the innocent child.",
+        "element_type": "concept",
+        "target_representation": "Blessings spoken over the cradle with jasmine flowers and sweet offerings.",
+        "adaptation_reason": "Spoken blessings mirror local well-wishing customs while keeping the fairies' role."
+      },
+      {
+        "story_element": "Dragon transformation",
+        "narrative_function": "Maleficent's final, fearsome form defeated by Prince Phillip.",
+        "element_type": "creature",
+        "target_representation": "A great dragon rising from the palace courtyard, unchanged in nature.",
+        "adaptation_reason": "The dragon form is required by continuity and needs no cultural change."
+      },
+      {
+        "story_element": "True love's kiss",
+        "narrative_function": "The pure act that breaks the enchantment.",
+        "element_type": "concept",
+        "target_representation": "The same awakening kiss, framed as devotion blessed by family and community.",
+        "adaptation_reason": "The resolution mechanism is protected and only gains local framing."
+      }
+    ],
+    "target_culture": {
+      "country": "Tunisia",
+      "region": "North Africa",
+      "language": "Tunisian Arabic (Derja) with French influence"
+    },
+    "setting": {
+      "public_spaces": [
+        "A village square with a fountain where celebrations are held.",
+        "Covered market stalls with spices, pottery, and woven baskets."
+      ],
+      "geography": [
+        "Rolling hills of olive and almond trees near the sea.",
+        "A fertile plain dotted with fig and pomegranate orchards."
+      ],
+      "climate": [
+        "Sunny Mediterranean weather with mild winters.",
+        "Warm sea breezes and bright, clear days."
+      ],
+      "environment": [
+        "A Mediterranean coastal kingdom with olive groves and jasmine gardens.",
+        "A hidden oasis sanctuary surrounded by date palms instead of a deep forest.",
+        "A barrier of cactus and bougainvillea thickets instead of thorny woods."
+      ],
+      "domestic_spaces": [
+        "Courtyards with lemon trees where families gather.",
+        "Rooms with handwoven rugs, low cushions, and brass lanterns."
+      ],
+      "architecture": [
+        "Whitewashed houses with blue doors in a medina-style town.",
+        "A fortress-like palace with arched courtyards and zellige tilework.",
+        "The sanctuary as a small whitewashed farmhouse among palm groves."
+      ]
+    }
+  },
+  "created_at": null,
+  "schema_valid": true,
+  "story_id": "40ec4d125d8d2dee",
+  "status": "done",
+  "target_culture": "Tunisian",
+  "semantic_valid": true
+}

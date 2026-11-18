@@ -1,0 +1,241 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Keep the exact character names Cinderella, Stepmother, Stepsisters, Fairy Godmother, Prince",
+      "Preserve Cinderella's kindness, Stepmother's cruelty, Stepsisters' mockery, Fairy Godmother's helpfulness, and Prince's search for love",
+      "Magic transformations must end at midnight",
+      "The glass slipper must fit only Cinderella",
+      "The royal ball must remain a high-status event where the Prince seeks a bride",
+      "Cinderella must attend the ball, flee at midnight, and lose one glass slipper",
+      "The Prince must search using the slipper and recognize Cinderella",
+      "Cinderella must forgive her stepfamily and achieve happiness",
+      "Kindness, a loving heart, and forgiveness lead to the happy resolution"
+    ],
+    "forbidden_adaptations": [
+      "Renaming, translating, or replacing any protected character name",
+      "Changing Cinderella's core kindness or goal",
+      "Removing the midnight limit on magic",
+      "Making the slipper non-glass or no longer unique to Cinderella",
+      "Replacing the ball with a non-celebration event",
+      "Turning forgiveness into revenge",
+      "Introducing religious or political sectarian meanings",
+      "Using caricatured or degrading regional stereotypes"
+    ],
+    "language_style": {
+      "restrictions": [
+        "Do not alter protected character names",
+        "Avoid sectarian or religious references",
+        "No negative regional or ethnic stereotypes"
+      ],
+      "local_expressions": [
+        "Yalla",
+        "Mabrouk",
+        "Ahlan",
+        "Doucement"
+      ],
+      "register": "warm, direct oral storytelling for children ages 4-8 with repetition and short phrases",
+      "language": "Tunisian Arabic"
+    },
+    "story_id": "cinderella_story",
+    "cultural_elements": {
+      "food": [
+        "almond kaak",
+        "dates stuffed with marzipan",
+        "orange-blossom lemonade",
+        "couscous with vegetables and lamb",
+        "mint tea with pine nuts"
+      ],
+      "traditions": [
+        "a palace courtship celebration with lanterns and perfume",
+        "women preparing festive sweets",
+        "formal evening gatherings with music and refreshments"
+      ],
+      "daily_life": [
+        "grinding grain for bread",
+        "carrying water from the fountain",
+        "washing clothes in a stone basin",
+        "sweeping the courtyard with palm leaves"
+      ],
+      "music": [
+        "malouf-style ensemble with oud, nay, and darbuka",
+        "soft courtyard drumming",
+        "songs of praise and celebration at the palace"
+      ],
+      "clothing": [
+        "Cinderella in a simple cotton dress and faded headscarf",
+        "Stepmother and Stepsisters in embroidered velvet kaftans and gold jewelry",
+        "ball attire: saffron silk kaftan with a silver belt",
+        "glass slipper shaped like a delicate babouche"
+      ],
+      "objects": [
+        "clay olive jar",
+        "brass water jug",
+        "carved olive-wood wand",
+        "silver-edged glass slipper",
+        "woven reed basket"
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "women gathering at the communal fountain",
+        "bakers sharing oven space and neighborhood news",
+        "palace celebrations as major public occasions"
+      ],
+      "forms_of_address": [
+        "Ya Cinderella as a familiar call",
+        "the Prince addressed formally but called only by his protected name",
+        "Stepmother and Stepsisters addressed directly without renaming"
+      ],
+      "family_dynamics": [
+        "a stepmother favoring her two daughters",
+        "Cinderella treated as a servant in her own home",
+        "hierarchical household centered on the courtyard"
+      ],
+      "social_interactions": [
+        "formal hospitality and respect toward palace guests",
+        "curious but kind neighbors at the fountain and bakery",
+        "polite distance between the stepfamily and the wider community"
+      ]
+    },
+    "adaptation_principles": [
+      "Preserve all protected character names exactly: Cinderella, Stepmother, Stepsisters, Fairy Godmother, Prince",
+      "Localize only surface setting, clothing, food, architecture, transport, music, and daily-life details",
+      "Maintain the moral arc of kindness, forgiveness, and magical help without changing relationships or key events",
+      "Use a timeless coastal North African visual world without religion-specific or politically specific markers"
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Cinderella's family home",
+        "narrative_function": "place of hardship and stepfamily control",
+        "element_type": "architecture",
+        "target_representation": "a traditional Tunisian courtyard house with Cinderella working in the inner courtyard and small tiled kitchen",
+        "adaptation_reason": "keeps her low domestic status visible while replacing European manor imagery with a local household layout"
+      },
+      {
+        "story_element": "Cinderella's kitchen/hearth",
+        "narrative_function": "place of labor and low status",
+        "element_type": "domestic space",
+        "target_representation": "a small clay-oven kitchen and stone washing basin near the courtyard",
+        "adaptation_reason": "preserves the oppressive daily workload while grounding it in a familiar domestic setting"
+      },
+      {
+        "story_element": "royal palace ballroom",
+        "narrative_function": "transformation, joy, and romantic meeting",
+        "element_type": "event space",
+        "target_representation": "a lantern-lit palace courtyard with zellige tile floors, a central fountain, and cushioned seating",
+        "adaptation_reason": "provides a grand high-status stage for the ball without requiring a European ballroom"
+      },
+      {
+        "story_element": "clothing contrast",
+        "narrative_function": "shows Cinderella's poverty versus stepfamily wealth",
+        "element_type": "clothing",
+        "target_representation": "Cinderella in a dusty cotton dress and headscarf; Stepmother and Stepsisters in brocade kaftans and gold jewelry",
+        "adaptation_reason": "maintains visual inequality and mistreatment through locally recognizable clothing"
+      },
+      {
+        "story_element": "ball attire",
+        "narrative_function": "marks magical transformation and Cinderella's worth",
+        "element_type": "clothing",
+        "target_representation": "a saffron silk kaftan with silver embroidery and delicate glass slippers",
+        "adaptation_reason": "gives Cinderella a radiant but culturally grounded ball appearance"
+      },
+      {
+        "story_element": "royal ball",
+        "narrative_function": "high-status event where the Prince seeks a bride",
+        "element_type": "celebration",
+        "target_representation": "an evening courtship celebration at the palace with malouf music, mint tea, and sweet almond pastries",
+        "adaptation_reason": "keeps the ball as a prestigious social occasion while localizing its food, music, and atmosphere"
+      },
+      {
+        "story_element": "pumpkin carriage",
+        "narrative_function": "magical transport to the ball",
+        "element_type": "transport",
+        "target_representation": "a painted mule cart with silver harness transformed from a large clay olive jar",
+        "adaptation_reason": "keeps the magical transport function and midnight constraint while replacing a pumpkin with a locally common object"
+      },
+      {
+        "story_element": "animal helpers",
+        "narrative_function": "magical assistance and wonder",
+        "element_type": "animal",
+        "target_representation": "two Barbary doves and a white mule transformed into coachman and footmen",
+        "adaptation_reason": "uses local animals to preserve the Fairy Godmother's temporary transformation magic"
+      },
+      {
+        "story_element": "glass slipper",
+        "narrative_function": "unique proof of Cinderella's identity",
+        "element_type": "object",
+        "target_representation": "a clear glass babouche-style slipper with tiny silver thread at the heel",
+        "adaptation_reason": "keeps the slipper glass and singularly fitted to Cinderella while adapting its shape to local footwear"
+      },
+      {
+        "story_element": "Fairy Godmother's magic wand",
+        "narrative_function": "enables magical transformations",
+        "element_type": "object",
+        "target_representation": "a carved olive-wood wand with a silver tip",
+        "adaptation_reason": "preserves the wand as a magical tool while localizing its material"
+      },
+      {
+        "story_element": "specific chores",
+        "narrative_function": "oppression and Cinderella's patient kindness",
+        "element_type": "daily life",
+        "target_representation": "grinding grain, carrying water, washing clothes, baking bread",
+        "adaptation_reason": "shows her mistreatment through realistic local labor without changing her core personality"
+      },
+      {
+        "story_element": "stepfamily's insults",
+        "narrative_function": "belittling Cinderella and reinforcing hierarchy",
+        "element_type": "language",
+        "target_representation": "mocking her flour-dusted dress and ash-streaked face",
+        "adaptation_reason": "keeps the mockery tied to her labor and low status while avoiding culturally specific slurs"
+      }
+    ],
+    "target_culture": {
+      "country": "Tunisia",
+      "region": "North Africa",
+      "language": "Tunisian Arabic"
+    },
+    "setting": {
+      "public_spaces": [
+        "communal water fountain",
+        "palace reception courtyard",
+        "small medina square",
+        "souk alley of bakers and craftsmen"
+      ],
+      "geography": [
+        "coastal town with a small fishing harbor",
+        "medina on a gentle hillside",
+        "palace overlooking the sea",
+        "countryside with olive and almond trees"
+      ],
+      "climate": [
+        "mild Mediterranean climate",
+        "hot afternoons and cool evenings",
+        "bright sunlight softened by courtyard shade"
+      ],
+      "environment": [
+        "whitewashed medina houses near the Mediterranean coast",
+        "olive groves and terracotta rooftops",
+        "narrow stone alleys with blue wooden doors",
+        "a hilltop palace above the sea"
+      ],
+      "domestic_spaces": [
+        "two-story courtyard family home",
+        "tiled kitchen with clay oven",
+        "stone washing basin and laundry area",
+        "small sleeping alcove near the hearth"
+      ],
+      "architecture": [
+        "arched doorways and inner courtyards",
+        "zellige tile floors and carved wooden ceilings",
+        "central fountains and shaded arcades",
+        "clay brick ovens in domestic kitchen corners"
+      ]
+    }
+  },
+  "created_at": "2026-09-23T08:55:28.772000+00:00",
+  "schema_valid": true,
+  "story_id": "416c9893cf9c4515",
+  "status": "validated",
+  "target_culture": "Tunisian",
+  "semantic_valid": true
+}

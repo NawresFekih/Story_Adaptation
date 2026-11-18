@@ -1,0 +1,175 @@
+{
+  "locale_profile": {
+    "preservation_rules": [
+      "Never rename Aurora, Flora, Fauna, and Merryweather, Maleficent, or Prince Phillip.",
+      "The curse must be triggered by a spinning wheel spindle prick.",
+      "Aurora must be fifteen at the time of the curse.",
+      "Prince Phillip must defeat Maleficent in her dragon form.",
+      "True love's kiss must awaken Aurora, with the fairies present as guardians."
+    ],
+    "forbidden_adaptations": [
+      "Do not replace the spindle with any other object.",
+      "Do not change the fairies' guardian role or remove them from the story.",
+      "Do not make the dragon battle violent or frightening beyond age-appropriate levels.",
+      "Do not alter the core moral of love, kindness, and courage overcoming darkness.",
+      "Do not use stereotypical or inaccurate cultural imagery."
+    ],
+    "language_style": {
+      "restrictions": [
+        "Avoid scary or graphic descriptions of the dragon battle.",
+        "Keep vocabulary within age 4-8 comprehension."
+      ],
+      "local_expressions": [
+        "Ganbatte (do your best) encourages Phillip before his battle.",
+        "Itadakimasu is said before meals in the farmhouse."
+      ],
+      "register": "Warm, simple storytelling register for young children, with gentle honorifics.",
+      "language": "Japanese"
+    },
+    "story_id": "sleeping_beauty",
+    "cultural_elements": {
+      "food": [
+        "Mochi and celebratory sekihan rice mark the birth celebration.",
+        "Simple farmhouse meals of rice, pickles, and mountain vegetables."
+      ],
+      "traditions": [
+        "Blessings are bestowed in a ceremony resembling Shichi-Go-San celebrations.",
+        "Lantern festivals light the kingdom on Aurora's birthday."
+      ],
+      "daily_life": [
+        "Aurora helps with chores like sweeping and gathering herbs.",
+        "The fairies tend a small garden and keep the hearth burning."
+      ],
+      "music": [
+        "Gentle koto and flute melodies underscore magical moments.",
+        "A soft lullaby tradition marks bedtime in the sanctuary."
+      ],
+      "clothing": [
+        "Aurora wears a simple kimono-style garment as Briar Rose in hiding.",
+        "Fairies wear colorful layered robes suited to their magical natures."
+      ],
+      "objects": [
+        "The spinning wheel is a traditional wooden wheel kept in a castle tower room.",
+        "Paper charms and talismans decorate the farmhouse for protection."
+      ]
+    },
+    "social_context": {
+      "community_life": [
+        "The kingdom celebrates Aurora's birth with a shared festival of lanterns and food.",
+        "Neighbors in the hidden valley quietly respect the family's privacy."
+      ],
+      "forms_of_address": [
+        "Characters use polite -san and honorific speech appropriate to their roles."
+      ],
+      "family_dynamics": [
+        "Flora, Fauna, and Merryweather act as a close-knit household raising Aurora with warmth and duty.",
+        "The king and queen's love for Aurora reflects deep parental devotion."
+      ],
+      "social_interactions": [
+        "Villagers greet each other with polite bows and respectful speech.",
+        "Community bonds emphasize care for children and elders."
+      ]
+    },
+    "adaptation_principles": [
+      "Keep all character names exactly as given: Aurora, Flora, Fauna, and Merryweather, Maleficent, Prince Phillip.",
+      "Localize settings and objects while preserving each element's narrative function.",
+      "Use gentle, age-appropriate imagery suitable for children aged 4-8.",
+      "Avoid stereotypes; use authentic, respectful Japanese cultural details.",
+      "Keep the curse, spindle, and true love's kiss mechanics unchanged."
+    ],
+    "cultural_mappings": [
+      {
+        "story_element": "Forest sanctuary",
+        "narrative_function": "Hides Aurora safely away from the kingdom until the curse passes.",
+        "element_type": "location",
+        "target_representation": "A secluded thatched minka farmhouse in a misty bamboo and cedar mountain valley.",
+        "adaptation_reason": "A hidden rural Japanese home preserves secrecy and pastoral safety while feeling native to the setting."
+      },
+      {
+        "story_element": "Thorny forest",
+        "narrative_function": "Tests Phillip's courage with dangerous obstacles on the way to Aurora.",
+        "element_type": "location",
+        "target_representation": "A dense, bramble-choked forest path lined with stone lanterns and tangled vines.",
+        "adaptation_reason": "Keeps the physical trial and ominous atmosphere while using familiar Japanese forest imagery."
+      },
+      {
+        "story_element": "Spinning wheel",
+        "narrative_function": "Catalyst that triggers the curse via the spindle prick.",
+        "element_type": "object",
+        "target_representation": "A traditional wooden spinning wheel kept in a quiet castle tower room.",
+        "adaptation_reason": "Retains the exact curse mechanism required by continuity while fitting the period aesthetic."
+      },
+      {
+        "story_element": "Castle",
+        "narrative_function": "Royal seat where Aurora's birth is celebrated and the curse unfolds.",
+        "element_type": "location",
+        "target_representation": "A wooden castle with tiled roofs, courtyard festivals, and lantern celebrations.",
+        "adaptation_reason": "Japanese castle architecture grounds the royalty theme in the target culture."
+      },
+      {
+        "story_element": "Dragon",
+        "narrative_function": "Maleficent's transformed form that Phillip must defeat.",
+        "element_type": "creature",
+        "target_representation": "A serpentine dragon with glowing scales, fearsome but not gory for young viewers.",
+        "adaptation_reason": "Eastern dragon imagery is culturally resonant while preserving the villain's final battle role."
+      },
+      {
+        "story_element": "Birth celebration",
+        "narrative_function": "Establishes Aurora and the kingdom's joy before the curse.",
+        "element_type": "event",
+        "target_representation": "A lantern festival with mochi, sekihan, and blessing ceremonies like Shichi-Go-San.",
+        "adaptation_reason": "Japanese festive traditions convey communal celebration and blessing naturally."
+      },
+      {
+        "story_element": "Fairies' blessings",
+        "narrative_function": "Flora, Fauna, and Merryweather grant gifts and protection to Aurora.",
+        "element_type": "tradition",
+        "target_representation": "Blessings spoken over the child with paper charms and soft koto music.",
+        "adaptation_reason": "Blessing rituals fit Japanese ceremonial customs while keeping the fairies' protective role."
+      },
+      {
+        "story_element": "True love's kiss",
+        "narrative_function": "Awakens Aurora and resolves the enchantment.",
+        "element_type": "concept",
+        "target_representation": "A tender, chaste moment framed with falling petals and gentle music.",
+        "adaptation_reason": "Preserves the required resolution while keeping it gentle and age-appropriate."
+      }
+    ],
+    "target_culture": {
+      "country": "Japan",
+      "region": "General Japan",
+      "language": "Japanese"
+    },
+    "setting": {
+      "public_spaces": [
+        "Castle courtyards and festival grounds host the birthday celebration."
+      ],
+      "geography": [
+        "Rolling forested mountains surround the kingdom.",
+        "A winding path through dense woods leads to the hidden valley."
+      ],
+      "climate": [
+        "Four distinct seasons with snowy winters and rainy early summers."
+      ],
+      "environment": [
+        "A misty cedar and bamboo forest replaces the European forest sanctuary.",
+        "Seasonal imagery of cherry blossoms and autumn maples marks time passing.",
+        "A hidden mountain valley conceals Aurora from the kingdom."
+      ],
+      "domestic_spaces": [
+        "The farmhouse includes a hearth room where the fairies care for Aurora."
+      ],
+      "architecture": [
+        "A traditional wooden castle with tiled roofs stands as the royal seat.",
+        "The forest sanctuary is a small thatched minka farmhouse.",
+        "Torii-like gates and stone lanterns mark paths through the thorny forest."
+      ]
+    }
+  },
+  "created_at": null,
+  "schema_valid": true,
+  "story_id": "40ec4d125d8d2dee",
+  "status": "done",
+  "target_culture": "Japanese",
+  "semantic_valid": true
+}

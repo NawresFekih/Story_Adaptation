@@ -1,0 +1,207 @@
+{
+  "created_at": "2026-08-21T10:36:00.258000+00:00",
+  "story_id": "40ec4d125d8d2dee",
+  "blueprint": {
+    "initial_state": {
+      "protagonist_goal": "Live a normal life and avoid danger",
+      "situation": "Aurora is a princess living in a kingdom",
+      "initial_conflict": "Maleficent curses Aurora"
+    },
+    "story_structure": [
+      {
+        "characters_involved": [
+          "char_001"
+        ],
+        "key_events": [
+          "evt_001"
+        ],
+        "summary": "Aurora is born and the kingdom celebrates",
+        "narrative_function": "Introduce characters and setting",
+        "required_outcome": "Establish Aurora's innocence",
+        "sequence": 1,
+        "phase": "setup"
+      },
+      {
+        "characters_involved": [
+          "char_003"
+        ],
+        "key_events": [
+          "evt_002"
+        ],
+        "summary": "Maleficent curses Aurora to fall asleep on her sixteenth birthday",
+        "narrative_function": "Introduce the curse",
+        "required_outcome": "Set the central conflict",
+        "sequence": 2,
+        "phase": "inciting_incident"
+      },
+      {
+        "characters_involved": [
+          "char_002"
+        ],
+        "key_events": [
+          "evt_003"
+        ],
+        "summary": "Flora, Fauna, and Merryweather raise Aurora as Briar Rose",
+        "narrative_function": "Protective fairies hide Aurora",
+        "required_outcome": "Ensure Aurora's safety",
+        "sequence": 3,
+        "phase": "rising_action"
+      },
+      {
+        "characters_involved": [
+          "char_001"
+        ],
+        "key_events": [
+          "evt_004"
+        ],
+        "summary": "On her sixteenth birthday, Aurora pricks her finger on a spinning wheel",
+        "narrative_function": "Aurora pricks finger and falls asleep",
+        "required_outcome": "Activate the curse",
+        "sequence": 4,
+        "phase": "climax"
+      },
+      {
+        "characters_involved": [
+          "char_004",
+          "char_003"
+        ],
+        "key_events": [
+          "evt_005"
+        ],
+        "summary": "Phillip battles through thorns and defeats Maleficent",
+        "narrative_function": "Prince Phillip confronts Maleficent",
+        "required_outcome": "Neutralize the antagonist",
+        "sequence": 5,
+        "phase": "falling_action"
+      },
+      {
+        "characters_involved": [
+          "char_004",
+          "char_001"
+        ],
+        "key_events": [
+          "evt_006"
+        ],
+        "summary": "Phillip kisses Aurora, awakening her",
+        "narrative_function": "True love's kiss breaks the curse",
+        "required_outcome": "Restore Aurora",
+        "sequence": 6,
+        "phase": "resolution"
+      }
+    ],
+    "source_title": "Sleeping Beauty Story",
+    "adaptable_elements": [
+      "forest sanctuary description",
+      "spinning wheel design",
+      "thorns depiction"
+    ],
+    "story_type": "fairy_tale",
+    "required_elements": [
+      "Aurora",
+      "Maleficent",
+      "Prince Phillip",
+      "true love's kiss",
+      "curse"
+    ],
+    "protected_elements": [
+      "Aurora",
+      "Maleficent",
+      "Prince Phillip",
+      "true love's kiss",
+      "curse"
+    ],
+    "story_id": "40ec4d125d8d2dee",
+    "conflicts": [
+      {
+        "description": "Maleficent's curse vs. Aurora's life",
+        "resolution": "Phillip's love breaks the curse",
+        "type": "external"
+      },
+      {
+        "description": "Aurora's fear of the unknown",
+        "resolution": "Protected by fairies",
+        "type": "internal"
+      }
+    ],
+    "optional_elements": [
+      "fairies' names",
+      "thorny forest details"
+    ],
+    "target_audience": "4-8",
+    "key_events": [
+      {
+        "description": "Aurora's birth and celebration",
+        "narrative_function": "Establish protagonist",
+        "event_id": "evt_001",
+        "importance": "high",
+        "is_protected": true
+      },
+      {
+        "description": "Maleficent curses Aurora",
+        "narrative_function": "Introduce conflict",
+        "event_id": "evt_002",
+        "importance": "high",
+        "is_protected": true
+      },
+      {
+        "description": "Fairies raise Aurora as Briar Rose",
+        "narrative_function": "Protective action",
+        "event_id": "evt_003",
+        "importance": "medium",
+        "is_protected": false
+      },
+      {
+        "description": "Aurora pricks finger and falls asleep",
+        "narrative_function": "Trigger curse",
+        "event_id": "evt_004",
+        "importance": "high",
+        "is_protected": true
+      },
+      {
+        "description": "Phillip defeats Maleficent",
+        "narrative_function": "Antagonist removal",
+        "event_id": "evt_005",
+        "importance": "high",
+        "is_protected": true
+      },
+      {
+        "description": "Phillip kisses Aurora, awakening her",
+        "narrative_function": "Resolution",
+        "event_id": "evt_006",
+        "importance": "high",
+        "is_protected": true
+      }
+    ],
+    "location_functions": [
+      {
+        "original_location": "forest sanctuary",
+        "adaptability": "flexible",
+        "narrative_function": "Place of safety for Aurora",
+        "location_id": "loc_001"
+      },
+      {
+        "original_location": "thorny forest",
+        "adaptability": "flexible",
+        "narrative_function": "Place of danger/testing for Phillip",
+        "location_id": "loc_002"
+      },
+      {
+        "original_location": "spinning wheel room",
+        "adaptability": "fixed",
+        "narrative_function": "Place of curse activation",
+        "location_id": "loc_003"
+      }
+    ],
+    "core_moral": [
+      "True love, kindness, and courage can overcome even the darkest curses and challenges in life."
+    ],
+    "core_theme": [
+      "true love",
+      "courage",
+      "kindness"
+    ],
+    "narrative_goal": "Break the curse and awaken Aurora"
+  },
+  "source_title": "Sleeping Beauty Story",
+  "status": "artifact_ready"
+}

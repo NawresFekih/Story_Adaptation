@@ -1,0 +1,245 @@
+{
+  "bible": {
+    "characters": [
+      {
+        "role": "protagonist",
+        "character_id": "char_001",
+        "description": "A kind girl mistreated by her stepfamily who wishes for joy and freedom.",
+        "important_attributes": {
+          "age": "young woman",
+          "occupation": "household servant"
+        },
+        "motivations": [
+          "desire for joy",
+          "escape from mistreatment"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal",
+          "defining physical or moral trait"
+        ],
+        "traits": [
+          "kind",
+          "gentle",
+          "forgiving",
+          "resilient"
+        ],
+        "name": "Cinderella",
+        "goals": [
+          "attend the royal ball",
+          "find happiness and love"
+        ]
+      },
+      {
+        "role": "antagonist",
+        "character_id": "char_002",
+        "description": "Cinderella's jealous stepmother who forces her to work and blocks her from the ball.",
+        "important_attributes": {
+          "role": "head of household",
+          "status": "widow"
+        },
+        "motivations": [
+          "envy",
+          "social ambition"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal"
+        ],
+        "traits": [
+          "jealous",
+          "cruel",
+          "selfish"
+        ],
+        "name": "Stepmother",
+        "goals": [
+          "keep Cinderella subordinate",
+          "advance her own daughters"
+        ]
+      },
+      {
+        "role": "antagonist",
+        "character_id": "char_003",
+        "description": "Cinderella's mean stepsisters who mock her and compete for the prince's attention.",
+        "important_attributes": {
+          "status": "stepsisters"
+        },
+        "motivations": [
+          "vanity",
+          "jealousy"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal"
+        ],
+        "traits": [
+          "mean",
+          "spoiled",
+          "deceitful"
+        ],
+        "name": "Stepsisters",
+        "goals": [
+          "marry the prince",
+          "belittle Cinderella"
+        ]
+      },
+      {
+        "role": "helper",
+        "character_id": "char_004",
+        "description": "A magical being who helps Cinderella attend the ball.",
+        "important_attributes": {
+          "power": "magic"
+        },
+        "motivations": [
+          "care for Cinderella's goodness"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal"
+        ],
+        "traits": [
+          "magical",
+          "compassionate",
+          "wise"
+        ],
+        "name": "Fairy Godmother",
+        "goals": [
+          "help Cinderella attend the royal ball"
+        ]
+      },
+      {
+        "role": "love interest",
+        "character_id": "char_005",
+        "description": "The royal prince who falls for Cinderella and searches for her after the ball.",
+        "important_attributes": {
+          "status": "royalty"
+        },
+        "motivations": [
+          "love",
+          "admiration"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal"
+        ],
+        "traits": [
+          "charming",
+          "determined",
+          "joyful"
+        ],
+        "name": "Prince",
+        "goals": [
+          "find the mysterious ball guest",
+          "marry Cinderella"
+        ]
+      }
+    ],
+    "continuity_constraints": [
+      "Cinderella must be mistreated by her stepfamily but remain kind.",
+      "She must receive magical help to attend the royal ball.",
+      "She must leave at midnight and lose a glass slipper.",
+      "The prince must search using the slipper and find her.",
+      "Cinderella must forgive her stepfamily and achieve happiness."
+    ],
+    "story_id": "416c9893cf9c4515",
+    "source_title": "Cinderella Story",
+    "important_entities": [
+      {
+        "description": "A delicate shoe left behind by Cinderella at midnight.",
+        "entity_id": "ent_001",
+        "narrative_role": "Key object used by the prince to identify Cinderella.",
+        "name": "glass slipper",
+        "type": "object"
+      },
+      {
+        "description": "A grand celebration hosted by the royal family.",
+        "entity_id": "ent_002",
+        "narrative_role": "Setting where Cinderella and the prince meet.",
+        "name": "royal ball",
+        "type": "event"
+      },
+      {
+        "description": "A carriage magically transformed from a pumpkin.",
+        "entity_id": "ent_003",
+        "narrative_role": "Transports Cinderella to the ball.",
+        "name": "pumpkin carriage",
+        "type": "object"
+      },
+      {
+        "description": "The Fairy Godmother's tool for casting spells.",
+        "entity_id": "ent_004",
+        "narrative_role": "Enables magical transformations.",
+        "name": "magic wand",
+        "type": "object"
+      }
+    ],
+    "relationships": [
+      {
+        "relationship_type": "stepmother-stepdaughter",
+        "source_character_id": "char_002",
+        "description": "Stepmother mistreats Cinderella and keeps her from the ball.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "stepsisters-stepsister",
+        "source_character_id": "char_003",
+        "description": "Stepsisters mock and belittle Cinderella.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "mentor-protégé",
+        "source_character_id": "char_004",
+        "description": "Fairy Godmother magically helps Cinderella attend the ball.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "love interest",
+        "source_character_id": "char_005",
+        "description": "Prince falls in love with Cinderella and seeks her through the glass slipper.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "mother-daughters",
+        "source_character_id": "char_002",
+        "description": "Stepmother favors her daughters and schemes for their success.",
+        "is_protected": true,
+        "target_character_id": "char_003"
+      }
+    ],
+    "world_rules": [
+      {
+        "rule": "Magic transformations end at midnight.",
+        "is_protected": true
+      },
+      {
+        "rule": "The glass slipper fits only Cinderella.",
+        "is_protected": true
+      },
+      {
+        "rule": "Fairy Godmother's magic can temporarily transform objects and animals.",
+        "is_protected": true
+      },
+      {
+        "rule": "The royal ball is a high-status event where the prince seeks a bride.",
+        "is_protected": true
+      },
+      {
+        "rule": "Kindness and forgiveness lead to a happy resolution.",
+        "is_protected": true
+      }
+    ]
+  },
+  "created_at": "2026-08-28T10:48:02.882000+00:00",
+  "story_id": "416c9893cf9c4515",
+  "source_title": "Cinderella Story",
+  "status": "artifact_ready"
+}

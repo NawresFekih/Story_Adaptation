@@ -1,0 +1,241 @@
+{
+  "bible": {
+    "characters": [
+      {
+        "role": "protagonist",
+        "character_id": "char_001",
+        "description": "A kind, graceful princess who falls into enchanted sleep.",
+        "important_attributes": {
+          "age": 15,
+          "appearance": "long golden hair",
+          "occupation": "princess"
+        },
+        "motivations": [
+          "love",
+          "curiosity"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal",
+          "defining physical or moral trait"
+        ],
+        "traits": [
+          "kind",
+          "graceful",
+          "beautiful",
+          "loving",
+          "curious",
+          "innocent"
+        ],
+        "name": "Aurora",
+        "goals": [
+          "avoid the curse",
+          "live a peaceful life"
+        ]
+      },
+      {
+        "role": "guardian",
+        "character_id": "char_002",
+        "description": "Three protective fairies who raise Aurora in hiding.",
+        "important_attributes": {
+          "appearance": "glowing wings"
+        },
+        "motivations": [
+          "love for Aurora",
+          "justice"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal",
+          "defining physical or moral trait"
+        ],
+        "traits": [
+          "protective",
+          "magical",
+          "loving",
+          "selfless",
+          "courageous",
+          "wise"
+        ],
+        "name": "Flora, Fauna, and Merryweather",
+        "goals": [
+          "protect Aurora",
+          "break the curse"
+        ]
+      },
+      {
+        "role": "antagonist",
+        "character_id": "char_003",
+        "description": "A malicious sorceress who curses Aurora.",
+        "important_attributes": {
+          "appearance": "black wings"
+        },
+        "motivations": [
+          "revenge",
+          "power"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal",
+          "defining physical or moral trait"
+        ],
+        "traits": [
+          "malicious",
+          "jealous",
+          "powerful",
+          "vengeful",
+          "dark"
+        ],
+        "name": "Maleficent",
+        "goals": [
+          "enslave Aurora",
+          "destroy the kingdom"
+        ]
+      },
+      {
+        "role": "hero",
+        "character_id": "char_004",
+        "description": "A brave prince who defeats Maleficent and awakens Aurora.",
+        "important_attributes": {
+          "age": 18,
+          "appearance": "strong build",
+          "occupation": "prince"
+        },
+        "motivations": [
+          "love",
+          "duty"
+        ],
+        "protected_attributes": [
+          "name",
+          "core personality trait",
+          "core goal",
+          "defining physical or moral trait"
+        ],
+        "traits": [
+          "brave",
+          "kind",
+          "determined",
+          "loving",
+          "chivalrous"
+        ],
+        "name": "Prince Phillip",
+        "goals": [
+          "save Aurora",
+          "restore peace"
+        ]
+      }
+    ],
+    "continuity_constraints": [
+      "The curse must be triggered by a spinning wheel spindle.",
+      "Aurora must be 15 at the time of the curse.",
+      "Prince Phillip must defeat Maleficent in her dragon form.",
+      "True love's kiss must awaken Aurora.",
+      "Fairies must be present as guardians."
+    ],
+    "story_id": "40ec4d125d8d2dee",
+    "source_title": "Sleeping Beauty Story",
+    "important_entities": [
+      {
+        "description": "The wheel that triggers Aurora's curse.",
+        "entity_id": "ent_001",
+        "narrative_role": "catalyst",
+        "name": "Spinning Wheel",
+        "type": "object"
+      },
+      {
+        "description": "Aurora's royal home.",
+        "entity_id": "ent_002",
+        "narrative_role": "setting",
+        "name": "Castle",
+        "type": "location"
+      },
+      {
+        "description": "Hidden refuge for Aurora.",
+        "entity_id": "ent_003",
+        "narrative_role": "safe haven",
+        "name": "Forest Sanctuary",
+        "type": "location"
+      },
+      {
+        "description": "Maleficent's dragon form.",
+        "entity_id": "ent_004",
+        "narrative_role": "villain manifestation",
+        "name": "Dragon",
+        "type": "creature"
+      },
+      {
+        "description": "The act that breaks the curse.",
+        "entity_id": "ent_005",
+        "narrative_role": "resolution",
+        "name": "True Love's Kiss",
+        "type": "concept"
+      }
+    ],
+    "relationships": [
+      {
+        "relationship_type": "guardian",
+        "source_character_id": "char_002",
+        "description": "Flora, Fauna, and Merryweather protect Aurora.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "love interest",
+        "source_character_id": "char_004",
+        "description": "Prince Phillip loves Aurora.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "cursed",
+        "source_character_id": "char_003",
+        "description": "Maleficent curses Aurora.",
+        "is_protected": true,
+        "target_character_id": "char_001"
+      },
+      {
+        "relationship_type": "villain",
+        "source_character_id": "char_004",
+        "description": "Prince Phillip battles Maleficent.",
+        "is_protected": true,
+        "target_character_id": "char_003"
+      },
+      {
+        "relationship_type": "opposed",
+        "source_character_id": "char_002",
+        "description": "Fairies oppose Maleficent.",
+        "is_protected": true,
+        "target_character_id": "char_003"
+      }
+    ],
+    "world_rules": [
+      {
+        "rule": "The curse activates on Aurora's sixteenth birthday when she pricks her finger on a spinning wheel spindle.",
+        "is_protected": true
+      },
+      {
+        "rule": "True love's kiss can break any enchantment.",
+        "is_protected": true
+      },
+      {
+        "rule": "Fairies can grant blessings and protect the innocent.",
+        "is_protected": true
+      },
+      {
+        "rule": "Maleficent can transform into a dragon to fight.",
+        "is_protected": true
+      },
+      {
+        "rule": "The forest sanctuary hides Aurora from the kingdom.",
+        "is_protected": true
+      }
+    ]
+  },
+  "created_at": "2026-08-21T10:36:00.258000+00:00",
+  "story_id": "40ec4d125d8d2dee",
+  "source_title": "Sleeping Beauty Story",
+  "status": "artifact_ready"
+}
