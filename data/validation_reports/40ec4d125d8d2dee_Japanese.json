@@ -1,0 +1,19 @@
+{
+  "global_reason": "technical failure - parse error(s) on: editorial",
+  "created_at": "2026-10-02T22:11:54.120000+00:00",
+  "story_id": "40ec4d125d8d2dee",
+  "narrative_reason": "The story preserves the core Sleeping Beauty arc: Maleficent's curse, Aurora's sleep, Phillip's defeat of Maleficent, and the awakening kiss. The moral and main character roles are clearly intact despite cultural adaptation.",
+  "technical_failure": true,
+  "safety_passed": true,
+  "safety_reason": "This is a gentle fairy-tale retelling with standard magical adversity, a curse, and a stylized dragon battle, but no graphic violence, sexual content, or other harmful elements for young children.",
+  "approved": null,
+  "editorial_reason": null,
+  "narrative_passed": true,
+  "cultural_reason": "All protected names unchanged, curse/spindle/kiss mechanics preserved, Aurora fifteen at the curse, and the Japanese setting, social context, and cultural elements are well represented with no forbidden adaptations.",
+  "target_culture": "Japan",
+  "cultural_passed": true,
+  "editorial_passed": null,
+  "title": "Sleeping Beauty",
+  "status": "technical_failure",
+  "source_doc_id": "40ec4d125d8d2dee_Japan"
+}

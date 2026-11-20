@@ -1,0 +1,19 @@
+{
+  "global_reason": "technical failure - parse error(s) on: narrative",
+  "created_at": "2026-10-02T22:11:54.120000+00:00",
+  "story_id": "40ec4d125d8d2dee",
+  "narrative_reason": null,
+  "technical_failure": true,
+  "safety_passed": true,
+  "safety_reason": "This is a gentle fairy-tale retelling with standard magical adversity, a dragon battle without gore, and a chaste true-love kiss; it is fully appropriate for ages 3-9.",
+  "approved": null,
+  "editorial_reason": "Fully consistent; cultural adaptation preserves canon, curse, age, dragon battle, true love's kiss, and guardian roles.",
+  "narrative_passed": null,
+  "cultural_reason": "All protected names unchanged, preservation rules respected (spindle at fifteen, dragon defeat, true love's kiss, fairy guardianship), and the Tunisian setting, social context, and cultural elements are richly and coherently represented with no forbidden adaptations or stereotypes.",
+  "target_culture": "Tunisia",
+  "cultural_passed": true,
+  "editorial_passed": true,
+  "title": "Sleeping Beauty",
+  "status": "technical_failure",
+  "source_doc_id": "40ec4d125d8d2dee_Tunisia"
+}

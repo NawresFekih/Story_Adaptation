@@ -1,0 +1,19 @@
+{
+  "global_reason": "ok",
+  "created_at": "2026-10-02T22:11:54.120000+00:00",
+  "story_id": "40ec4d125d8d2dee",
+  "narrative_reason": "All essential elements are clearly present: the curse, the protective fairies, Aurora's sleep, Phillip's defeat of Maleficent, and the awakening kiss, with the core moral intact.",
+  "technical_failure": null,
+  "safety_passed": true,
+  "safety_reason": "This is a classic fairy tale with standard stylized adversity, including a curse, a dragon battle, and a chaste awakening kiss; it contains no graphic violence, sexual content, or other inappropriate material for young children.",
+  "approved": true,
+  "editorial_reason": "Fully consistent with canon; cultural adaptation preserves all core traits, relationships, world rules, and continuity.",
+  "narrative_passed": true,
+  "cultural_reason": "All protected names unchanged, all preservation rules honored (spindle curse at fifteen, dragon battle, true love's kiss, fairies' guardianship), and Tuscan setting, food, traditions, and language style are richly and coherently represented with no stereotypes.",
+  "target_culture": "Italy",
+  "cultural_passed": true,
+  "editorial_passed": true,
+  "title": "Sleeping Beauty",
+  "status": "all_checks_passed",
+  "source_doc_id": "40ec4d125d8d2dee_Italy"
+}
